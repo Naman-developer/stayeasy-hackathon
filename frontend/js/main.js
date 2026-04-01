@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://stayeasy-hackathon-production.up.railway.app/api";
 
 const ROLE_REDIRECT_MAP = {
   student: "./pages/student-dashboard.html",
@@ -362,3 +362,4 @@ loadFeaturedListings();
 loadLandingReviews();
 initFeaturedCarousel();
 initRevealAnimations();
+

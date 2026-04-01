@@ -1,5 +1,5 @@
 (() => {
-  const API_BASE_URL = "http://localhost:5000/api";
+  const API_BASE_URL = "https://stayeasy-hackathon-production.up.railway.app/api";
   const ASSISTANT_OPEN_KEY = "stayeasy_assistant_open";
   const MAX_HISTORY_ITEMS = 40;
   const BRAND_LOGO_FILENAME = "arosaty-logo.jpeg";
@@ -892,3 +892,4 @@
     initGlobalUi();
   }
 })();
+
