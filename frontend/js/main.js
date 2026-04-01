@@ -13,6 +13,9 @@ const ROLE_REDIRECT_MAP = {
 };
 
 const navActions = document.querySelector(".nav-actions");
+const homeLoginBtn = document.getElementById("homeLoginBtn");
+const homeSignupBtn = document.getElementById("homeSignupBtn");
+const homeSidebarAuth = document.getElementById("homeSidebarAuth");
 
 const getStoredUser = () => {
   const raw = localStorage.getItem("stayeasy_user");
@@ -43,7 +46,43 @@ const renderNavbarForAuthState = () => {
   const dashboardUrl = user?.role ? ROLE_REDIRECT_MAP[user.role] : "";
 
   if (!token || !dashboardUrl) {
+    if (homeLoginBtn) homeLoginBtn.style.display = "";
+    if (homeSignupBtn) homeSignupBtn.style.display = "";
+    if (homeSidebarAuth) {
+      homeSidebarAuth.innerHTML = `
+        <a class="ghost-btn" href="./pages/login.html">Login</a>
+        <a class="solid-btn" href="./pages/signup.html">Signup</a>
+      `;
+    }
     return;
+  }
+
+  if (homeLoginBtn) {
+    homeLoginBtn.textContent = "Dashboard";
+    homeLoginBtn.setAttribute("href", dashboardUrl);
+  }
+
+  if (homeSignupBtn) {
+    homeSignupBtn.textContent = "Logout";
+    homeSignupBtn.setAttribute("href", "#");
+    homeSignupBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      clearSession();
+      window.location.href = "./index.html";
+    });
+  }
+
+  if (homeSidebarAuth) {
+    homeSidebarAuth.innerHTML = `
+      <a class="ghost-btn" href="${dashboardUrl}">Open Dashboard</a>
+      <button id="homeSidebarLogoutBtn" class="solid-btn" type="button">Logout</button>
+    `;
+
+    const sidebarLogoutButton = document.getElementById("homeSidebarLogoutBtn");
+    sidebarLogoutButton?.addEventListener("click", () => {
+      clearSession();
+      window.location.href = "./index.html";
+    });
   }
 
   navActions.innerHTML = `
@@ -58,6 +97,67 @@ const renderNavbarForAuthState = () => {
   logoutButton?.addEventListener("click", () => {
     clearSession();
     window.location.href = "./index.html";
+  });
+};
+
+const initHomeSidebar = () => {
+  const sidebar = document.getElementById("homeSidebar");
+  const overlay = document.getElementById("homeSidebarOverlay");
+  const openButton = document.getElementById("homeSidebarToggle");
+  const closeButton = document.getElementById("homeSidebarClose");
+  const linkWrap = document.getElementById("homeSidebarLinks");
+
+  if (!sidebar || !overlay || !openButton || !closeButton) return;
+
+  const setOpen = (open) => {
+    sidebar.classList.toggle("open", open);
+    overlay.classList.toggle("open", open);
+    sidebar.setAttribute("aria-hidden", open ? "false" : "true");
+    document.body.classList.toggle("home-sidebar-open", open);
+  };
+
+  openButton.addEventListener("click", () => setOpen(true));
+  closeButton.addEventListener("click", () => setOpen(false));
+  overlay.addEventListener("click", () => setOpen(false));
+
+  linkWrap?.addEventListener("click", (event) => {
+    const anchor = event.target.closest("a");
+    if (!anchor) return;
+    setOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+};
+
+const initCompactSearchCard = () => {
+  const card = document.querySelector(".search-card");
+  const toggleButton = document.getElementById("searchCardToggle");
+  if (!card || !toggleButton) return;
+
+  const setCollapsed = (collapsed) => {
+    card.classList.toggle("is-collapsed", collapsed);
+    toggleButton.setAttribute("aria-expanded", String(!collapsed));
+    const chip = toggleButton.querySelector(".search-toggle-chip");
+    if (chip) {
+      chip.textContent = collapsed ? "Tap to Expand" : "Tap to Collapse";
+    }
+  };
+
+  const mobileQuery = window.matchMedia("(max-width: 760px)");
+  setCollapsed(mobileQuery.matches);
+
+  toggleButton.addEventListener("click", () => {
+    setCollapsed(!card.classList.contains("is-collapsed"));
+  });
+
+  mobileQuery.addEventListener("change", (event) => {
+    if (!event.matches) {
+      setCollapsed(false);
+    }
   });
 };
 
@@ -403,7 +503,9 @@ if (quickSearchForm) {
 }
 
 renderNavbarForAuthState();
+initHomeSidebar();
 initSmartHomeNavbar();
+initCompactSearchCard();
 loadFeaturedListings();
 loadLandingReviews();
 initFeaturedCarousel();

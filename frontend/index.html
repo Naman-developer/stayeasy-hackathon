@@ -15,10 +15,19 @@
 
 <body>
   <header class="navbar">
+    <div class="nav-left">
+      <button type="button" id="homeSidebarToggle" class="home-sidebar-toggle" aria-label="Open menu">
+        Menu
+      </button>
+      <a id="homeLoginBtn" class="ghost-btn nav-auth-btn" href="./pages/login.html">Login</a>
+      <a id="homeSignupBtn" class="solid-btn nav-auth-btn" href="./pages/signup.html">Signup</a>
+    </div>
+
     <div class="brand">
       <span class="brand-badge">S</span>
       <span>StayEasy</span>
     </div>
+
     <nav class="nav-actions">
       <a class="ghost-btn" href="#how-it-works">How It Works</a>
       <a class="ghost-btn" href="./pages/worker.html">Helpers</a>
@@ -27,31 +36,66 @@
     </nav>
   </header>
 
+  <div id="homeSidebarOverlay" class="home-sidebar-overlay"></div>
+  <aside id="homeSidebar" class="home-sidebar" aria-hidden="true">
+    <div class="home-sidebar-head">
+      <strong>StayEasy Menu</strong>
+      <button type="button" id="homeSidebarClose" class="home-sidebar-close" aria-label="Close menu">
+        Close
+      </button>
+    </div>
+    <nav id="homeSidebarLinks" class="home-sidebar-links">
+      <a href="#how-it-works">How It Works</a>
+      <a href="#featured-listings">Featured Listings</a>
+      <a href="#trust-safety">Trust & Safety</a>
+      <a href="#helper-services">Helper Services</a>
+      <a href="#community-reviews">Community Reviews</a>
+      <a href="./pages/search-results.html">Explore Listings</a>
+      <a href="./pages/worker.html">Explore Helpers</a>
+    </nav>
+    <div id="homeSidebarAuth" class="home-sidebar-auth">
+      <a class="ghost-btn" href="./pages/login.html">Login</a>
+      <a class="solid-btn" href="./pages/signup.html">Signup</a>
+    </div>
+  </aside>
+
   <main>
     <section class="hero">
       <article class="hero-content reveal">
-        <p class="tag">Verified Accommodation. Zero Brokerage. Safer Living.</p>
-        <h1>Book trusted stays, manage hostel life, and access helpers in one platform.</h1>
+        <p class="tag">Zero Broker Fee. Verified Listings.</p>
+        <h1>Find Your Perfect <span class="hero-highlight">Accommodation</span></h1>
         <p class="subtitle">
-          StayEasy brings students, tenants, owners, hostel managers, parents, workers,
-          and admins into one fast marketplace built for safety and convenience.
+          Verified accommodations for students and professionals. Hostels, PGs, flats, and
+          properties, all without broker fees.
         </p>
-        <div class="hero-points">
-          <span>Verified Listings</span>
-          <span>No Brokerage</span>
-          <span>Parent Monitoring</span>
-          <span>SOS Safety</span>
-          <span>Helper Marketplace</span>
-        </div>
         <div class="hero-cta">
-          <a class="solid-btn" href="./pages/signup.html">Create Free Account</a>
-          <a class="ghost-btn" href="./pages/search-results.html">Explore Listings</a>
+          <a class="solid-btn" href="./pages/search-results.html">Find Accommodation</a>
+          <a class="ghost-btn" href="./pages/signup.html">List Your Property</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <strong>10K+</strong>
+            <span>Properties</span>
+          </div>
+          <div>
+            <strong>50+</strong>
+            <span>Cities</span>
+          </div>
+          <div>
+            <strong>4.8★</strong>
+            <span>Rating</span>
+          </div>
         </div>
       </article>
 
       <aside class="search-card reveal">
-        <h2>Find Your Stay</h2>
-        <p class="search-sub">Search by city, type, and budget. Fast and demo-ready.</p>
+        <button type="button" id="searchCardToggle" class="search-card-toggle" aria-expanded="true">
+          <span class="search-toggle-copy">
+            <strong>Search Accommodation</strong>
+            <small>Pick destination, type and budget in one step.</small>
+          </span>
+          <span class="search-toggle-chip">Tap to Expand</span>
+        </button>
         <form id="quickSearchForm">
           <div>
             <label for="locationInput">Location</label>
@@ -93,7 +137,7 @@
       </aside>
     </section>
 
-    <section class="section reveal">
+    <section class="section reveal" id="featured-listings">
       <div class="section-head">
         <div>
           <h2>Featured Listings</h2>
@@ -134,7 +178,7 @@
       </div>
     </section>
 
-    <section class="section reveal">
+    <section class="section reveal" id="trust-safety">
       <div class="section-head">
         <div>
           <h2>Trust & Safety</h2>
@@ -157,7 +201,7 @@
       </div>
     </section>
 
-    <section class="section reveal">
+    <section class="section reveal" id="helper-services">
       <div class="section-head">
         <div>
           <h2>Helper Services Preview</h2>
@@ -166,18 +210,15 @@
         <a class="ghost-btn" href="./pages/worker.html">Explore Helpers</a>
       </div>
       <div class="service-preview">
-        <div class="service-chip">Maid</div>
-        <div class="service-chip">Cook</div>
-        <div class="service-chip">Sweeper</div>
-        <div class="service-chip">Electrician</div>
-        <div class="service-chip">Plumber</div>
-        <div class="service-chip">Cleaner</div>
-        <div class="service-chip">Hostel Bulk Services</div>
-        <div class="service-chip">Priority Member Slots</div>
+        <div class="service-chip">
+          From cleaning and cooking to repairs and emergency support, StayEasy helpers cover everyday needs in one place.
+          <br />
+          Book trusted workers quickly, track requests easily, and manage services without hassle.
+        </div>
       </div>
     </section>
 
-    <section class="section reveal">
+    <section class="section reveal" id="community-reviews">
       <div class="section-head">
         <div>
           <h2>Community Reviews</h2>
@@ -206,18 +247,6 @@
       </div>
     </section>
 
-    <section class="section reveal">
-      <div class="cta-band">
-        <div>
-          <h2>Ready to simplify accommodation and safety?</h2>
-          <p>Launch with role-based dashboards, approvals, booking, payments, and helper support.</p>
-        </div>
-        <div class="hero-cta">
-          <a class="solid-btn" href="./pages/signup.html">Get Started</a>
-          <a class="ghost-btn" href="./pages/search-results.html">Explore</a>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="footer">

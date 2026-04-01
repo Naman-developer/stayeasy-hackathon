@@ -550,6 +550,117 @@
     document.head.appendChild(style);
   };
 
+  const injectGlobalMotionStyles = () => {
+    if (document.getElementById("stayeasyGlobalMotionStyle")) return;
+
+    const style = document.createElement("style");
+    style.id = "stayeasyGlobalMotionStyle";
+    style.textContent = `
+      .stayeasy-motion-item {
+        opacity: 0;
+        transform: translateY(10px) scale(0.995);
+        transition: opacity 0.34s ease, transform 0.34s ease;
+        will-change: transform, opacity;
+      }
+
+      .stayeasy-motion-item.stayeasy-motion-in {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .section-card,
+      .content-card,
+      .filter-card,
+      .search-card,
+      .auth-card,
+      .auth-brand,
+      .property-card,
+      .kpi-card,
+      .metric-tile,
+      .info-card,
+      .trust-badge,
+      .testimonial,
+      .service-chip,
+      .top-property-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      }
+
+      .section-card:hover,
+      .content-card:hover,
+      .filter-card:hover,
+      .property-card:hover,
+      .kpi-card:hover,
+      .metric-tile:hover,
+      .info-card:hover,
+      .trust-badge:hover,
+      .testimonial:hover,
+      .service-chip:hover,
+      .top-property-card:hover {
+        transform: translateY(-2px);
+      }
+
+      button,
+      .btn,
+      .solid-btn,
+      .ghost-btn,
+      .market-btn {
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+      }
+
+      button:hover,
+      .btn:hover,
+      .solid-btn:hover,
+      .ghost-btn:hover,
+      .market-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .stayeasy-motion-item,
+        .stayeasy-motion-item.stayeasy-motion-in,
+        button,
+        .btn,
+        .solid-btn,
+        .ghost-btn,
+        .market-btn {
+          transition: none !important;
+          transform: none !important;
+          opacity: 1 !important;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  };
+
+  const initGlobalMotion = () => {
+    injectGlobalMotionStyles();
+
+    const targets = Array.from(
+      document.querySelectorAll(
+        ".section, .section-card, .content-card, .filter-card, .search-card, .auth-card, .auth-brand, .property-card, .kpi-card, .metric-tile, .info-card, .trust-badge, .testimonial, .service-chip, .top-property-card"
+      )
+    ).filter((node) => !node.classList.contains("stayeasy-motion-item"));
+
+    if (!targets.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("stayeasy-motion-in");
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.08 }
+    );
+
+    targets.forEach((node) => {
+      node.classList.add("stayeasy-motion-item");
+      observer.observe(node);
+    });
+  };
+
   const createMessageNode = (role, text) => {
     const wrapper = document.createElement("article");
     wrapper.className = `stayeasy-chat-message ${role}`;
@@ -873,6 +984,7 @@
     renderMarketplaceAuthActions();
     injectBrandStyles();
     injectBrandLogos();
+    initGlobalMotion();
     const scheduleLogoInjection = debounce(() => {
       injectBrandLogos();
     }, 120);
