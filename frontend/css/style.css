@@ -1040,3 +1040,180 @@ body {
     align-items: flex-start;
   }
 }
+
+/* Landing minimal compact v3 */
+body {
+  background: #f8fcff;
+}
+
+.navbar,
+.section,
+.search-card,
+.featured-card,
+.info-card,
+.trust-badge,
+.service-chip,
+.testimonial,
+.cta-band,
+.footer {
+  box-shadow: 0 4px 12px rgba(64, 137, 186, 0.1);
+}
+
+.navbar {
+  border-radius: 14px;
+}
+
+.nav-actions {
+  gap: 0.45rem;
+}
+
+.hero {
+  gap: 0.82rem;
+}
+
+.hero-content h1 {
+  font-size: clamp(1.42rem, 2.4vw, 2.04rem);
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  max-width: 52ch;
+}
+
+.hero-points {
+  gap: 0.26rem;
+}
+
+.hero-points span {
+  padding: 0.16rem 0.42rem;
+  font-size: 0.65rem;
+}
+
+.search-card form {
+  gap: 0.42rem;
+}
+
+.search-chip-grid {
+  gap: 0.34rem;
+}
+
+.section {
+  border-radius: 14px;
+  padding: 0.74rem;
+}
+
+.section-head {
+  margin-bottom: 0.48rem;
+}
+
+.section-head h2 {
+  font-size: 0.98rem;
+}
+
+.section-head p {
+  font-size: 0.76rem;
+}
+
+.featured-card,
+.info-card,
+.trust-badge,
+.testimonial {
+  border-radius: 12px;
+}
+
+.featured-body,
+.info-card,
+.trust-badge,
+.testimonial,
+.service-chip {
+  padding: 0.56rem;
+}
+
+.service-chip {
+  border-radius: 12px;
+}
+
+.cta-band {
+  border-radius: 14px;
+  padding: 0.7rem;
+}
+
+.cta-band h2 {
+  font-size: 1rem;
+}
+
+.footer {
+  border-radius: 14px;
+}
+
+@media (max-width: 760px) {
+  .hero-content .tag {
+    font-size: 0.74rem;
+  }
+
+  .hero-content h1 {
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+  }
+
+  .hero-points {
+    display: none;
+  }
+
+  .hero-cta {
+    gap: 0.42rem;
+  }
+
+  .section {
+    margin-top: 0.66rem;
+  }
+
+  .section-head p {
+    display: none;
+  }
+
+  .featured-card img {
+    height: 124px;
+  }
+
+  .service-preview {
+    gap: 0.45rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar,
+  .hero,
+  .section,
+  .footer {
+    width: min(1140px, 96%);
+  }
+
+  .navbar {
+    padding: 0.46rem;
+  }
+
+  .nav-actions .ghost-btn,
+  .nav-actions .solid-btn {
+    min-height: 32px;
+  }
+
+  .search-card h2 {
+    font-size: 0.95rem;
+  }
+
+  .search-sub {
+    font-size: 0.76rem;
+  }
+
+  .search-card input,
+  .search-card select,
+  .search-card button[type="button"],
+  .tag-btn {
+    font-size: 0.78rem;
+  }
+}
