@@ -259,7 +259,7 @@ const createPortalSidebar = (user = {}) => {
   return aside;
 };
 
-  const enhanceTopbar = (user = {}) => {
+const enhanceTopbar = (user = {}) => {
     const topbar = document.querySelector(".topbar");
     if (!topbar) return;
 
@@ -314,6 +314,131 @@ const createPortalSidebar = (user = {}) => {
     avatar.textContent = getInitial(user.name);
     profileBox.appendChild(avatar);
   }
+};
+
+const initSmartTopbar = () => {
+  const topbar = document.querySelector(".topbar");
+  if (!topbar) return;
+
+  let lastY = window.scrollY || 0;
+  let ticking = false;
+
+  const syncTopbar = () => {
+    const currentY = window.scrollY || 0;
+    const delta = currentY - lastY;
+
+    if (currentY <= 56) {
+      topbar.classList.remove("is-hidden");
+    } else if (delta > 6) {
+      topbar.classList.add("is-hidden");
+    } else if (delta < -6) {
+      topbar.classList.remove("is-hidden");
+    }
+
+    lastY = currentY;
+    ticking = false;
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(syncTopbar);
+    },
+    { passive: true }
+  );
+};
+
+const initTopbarSearch = () => {
+  const searchInput = document.querySelector(".top-search-wrap input[type='search']");
+  const sections = Array.from(document.querySelectorAll(".dashboard-main > .section-card, .dashboard-main > .intro"));
+  if (!searchInput || !sections.length) return;
+
+  let clearFocusTimer = null;
+
+  const clearSectionFocus = () => {
+    sections.forEach((section) => section.classList.remove("section-focus"));
+  };
+
+  const findSectionMatch = (query) => {
+    const normalizedQuery = String(query || "").trim().toLowerCase();
+    if (!normalizedQuery) return null;
+
+    return sections.find((section) => {
+      const heading = section.querySelector("h1, h2, h3");
+      const headingText = (heading?.textContent || "").toLowerCase();
+      const sectionText = section.textContent.toLowerCase();
+      return headingText.includes(normalizedQuery) || sectionText.includes(normalizedQuery);
+    });
+  };
+
+  const jumpToSection = (query) => {
+    const match = findSectionMatch(query);
+    if (!match) {
+      if (window.showToast) {
+        window.showToast("No matching section found.", "info");
+      }
+      return;
+    }
+
+    clearSectionFocus();
+    match.classList.add("section-focus");
+    match.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (clearFocusTimer) {
+      clearTimeout(clearFocusTimer);
+    }
+    clearFocusTimer = setTimeout(() => {
+      match.classList.remove("section-focus");
+    }, 2200);
+  };
+
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    jumpToSection(searchInput.value);
+  });
+
+  searchInput.addEventListener("search", () => {
+    if (!searchInput.value.trim()) {
+      clearSectionFocus();
+    }
+  });
+};
+
+const initResponsiveTableCards = () => {
+  const tables = Array.from(document.querySelectorAll(".data-table"));
+  if (!tables.length) return;
+
+  const applyLabels = (table) => {
+    const headers = Array.from(table.querySelectorAll("thead th")).map((th) =>
+      (th.textContent || "").trim()
+    );
+
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach((row) => {
+      const cells = row.querySelectorAll("td");
+      cells.forEach((cell, index) => {
+        const fallback = `Column ${index + 1}`;
+        cell.setAttribute("data-label", headers[index] || fallback);
+      });
+    });
+  };
+
+  tables.forEach((table) => {
+    applyLabels(table);
+
+    const observer = new MutationObserver(() => {
+      applyLabels(table);
+    });
+
+    observer.observe(table, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+  });
 };
 
 const mountDashboardSidebar = (user = {}) => {
@@ -591,8 +716,11 @@ const bootstrapDashboard = async () => {
   if (userNameEl) userNameEl.textContent = user.name || "User";
   if (userRoleEl) userRoleEl.textContent = user.role;
   enhanceTopbar(user);
+  initSmartTopbar();
   ensureTopRoleBadge(user.role);
   mountDashboardSidebar(user);
+  initTopbarSearch();
+  initResponsiveTableCards();
 
   initNotificationBell(token);
   const freshUser = await verifySession(token);
