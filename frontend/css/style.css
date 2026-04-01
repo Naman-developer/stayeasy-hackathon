@@ -1491,10 +1491,19 @@ body.home-sidebar-open {
   align-items: center;
   grid-template-columns: 1.1fr 0.95fr;
   gap: 1.3rem;
-  background:
-    linear-gradient(106deg, rgba(6, 31, 71, 0.9) 12%, rgba(9, 38, 84, 0.78) 52%, rgba(13, 46, 96, 0.5) 100%),
-    url("../assets/arosaty-logo.jpeg") center/cover no-repeat;
+  background: linear-gradient(106deg, rgba(6, 31, 71, 0.92) 12%, rgba(9, 38, 84, 0.82) 52%, rgba(13, 46, 96, 0.62) 100%);
   box-shadow: 0 22px 46px rgba(8, 24, 54, 0.34);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url("../assets/arosaty-logo.jpeg") center/68% contain no-repeat;
+  opacity: 0.14;
+  filter: saturate(0.9) contrast(1.05) brightness(1.05);
 }
 
 .hero-content {
@@ -1605,6 +1614,11 @@ body.home-sidebar-open {
     gap: 0.9rem;
   }
 
+  .hero::before {
+    background-size: 84%;
+    opacity: 0.12;
+  }
+
   .hero-content h1 {
     max-width: none;
     font-size: clamp(1.7rem, 7vw, 2.5rem);
@@ -1644,5 +1658,10 @@ body.home-sidebar-open {
 
   .hero-stats strong {
     font-size: 1.2rem;
+  }
+
+  .hero::before {
+    background-size: 94%;
+    opacity: 0.1;
   }
 }
