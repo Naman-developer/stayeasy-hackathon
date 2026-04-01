@@ -30,10 +30,11 @@ RAZORPAY_KEY_SECRET=<optional>
 
 ### Railway
 1. Create new project from repo.
-2. Set service root to `backend`.
+2. Keep root as repository root (Dockerfile auto-detect hoga).
 3. Add environment variables.
-4. Start command: `npm start`
-5. Deploy and copy backend URL.
+4. Deploy and copy backend URL.
+
+This repo includes a root `Dockerfile` that builds and runs `backend/`, so Railpack/Nixpacks root detection issues in monorepo setup are avoided.
 
 ## 4) Frontend Deploy (Vercel)
 1. Import project on Vercel.
