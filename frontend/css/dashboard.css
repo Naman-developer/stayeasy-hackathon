@@ -2477,6 +2477,63 @@ body {
   box-shadow: 0 0 0 4px rgba(88, 183, 255, 0.22);
 }
 
+.section-collapse-body {
+  margin-top: 0.52rem;
+}
+
+.section-card.is-collapsed .section-collapse-body {
+  display: none;
+}
+
+.section-collapse-toggle {
+  border: 1px solid #8cc3ed;
+  background: #f3faff;
+  color: #164b7d;
+  border-radius: 10px;
+  padding: 0.3rem 0.56rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.portal-module-switcher {
+  margin-bottom: 0.15rem;
+}
+
+.portal-module-switcher .section-title {
+  border-bottom: none;
+  margin-bottom: 0.45rem;
+  padding-bottom: 0;
+  position: static;
+}
+
+.portal-module-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.portal-module-chip,
+.portal-compact-toggle {
+  border: 1px solid #8bc2ec;
+  background: #f2f9ff;
+  color: #154a7a;
+  border-radius: 999px;
+  padding: 0.34rem 0.62rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.portal-module-chip.active,
+.portal-module-chip:hover,
+.portal-compact-toggle:hover {
+  border-color: #57b8ff;
+  background: #e8f5ff;
+}
+
 @media (max-width: 900px) {
   .section-title {
     position: static;
@@ -2485,6 +2542,19 @@ body {
 
   .table-wrap .data-table thead th {
     position: static;
+  }
+
+  .section-collapse-toggle,
+  .portal-module-chip,
+  .portal-compact-toggle {
+    font-size: 0.68rem;
+    padding: 0.28rem 0.5rem;
+  }
+
+  .portal-module-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.34rem;
   }
 }
 

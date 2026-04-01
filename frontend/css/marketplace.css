@@ -765,3 +765,200 @@ body.marketplace-body {
 .detail-textarea::placeholder {
   color: #5d84ae;
 }
+
+/* Final compact polish layer (marketplace + booking pages) */
+:root {
+  --radius-xl: 1rem;
+}
+
+body.marketplace-body {
+  line-height: 1.45;
+}
+
+.market-nav,
+.market-main {
+  width: min(1120px, 93%);
+}
+
+.market-nav {
+  margin-top: 0.75rem;
+  padding: 0.62rem 0.76rem;
+  gap: 0.52rem;
+}
+
+.market-brand {
+  font-size: 0.95rem;
+}
+
+.market-actions {
+  gap: 0.42rem;
+}
+
+.market-btn,
+.market-user-chip {
+  border-radius: 12px;
+}
+
+.market-btn {
+  padding: 0.5rem 0.72rem;
+  font-size: 0.8rem;
+}
+
+.market-user-chip {
+  padding: 0.28rem 0.46rem;
+}
+
+.market-user-avatar {
+  width: 24px;
+  height: 24px;
+  font-size: 0.74rem;
+}
+
+.market-main {
+  margin-top: 0.86rem;
+  margin-bottom: 1.25rem;
+  gap: 0.82rem;
+}
+
+.filter-card,
+.content-card {
+  border-radius: var(--radius-xl);
+  padding: 0.75rem;
+}
+
+.content-card h2,
+.content-card h3 {
+  font-size: 1rem;
+}
+
+.filter-form {
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.filter-field label {
+  font-size: 0.78rem;
+  margin-bottom: 0.25rem;
+}
+
+.filter-field input,
+.filter-field select,
+.detail-input,
+.detail-textarea {
+  padding: 0.52rem 0.62rem;
+  font-size: 0.82rem;
+  border-radius: 10px;
+}
+
+.results-grid,
+.skeleton-grid {
+  gap: 0.72rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.property-card {
+  border-radius: var(--radius-xl);
+}
+
+.property-card img {
+  height: 150px;
+}
+
+.property-card .card-body {
+  padding: 0.66rem;
+}
+
+.property-card h3 {
+  font-size: 0.92rem;
+}
+
+.property-meta,
+.property-price,
+.assistant-mini-card p,
+.assistant-bubble p,
+.muted-text {
+  font-size: 0.8rem;
+}
+
+.badge,
+.amenity-pill {
+  font-size: 0.7rem;
+}
+
+.detail-layout,
+.booking-grid {
+  gap: 0.8rem;
+}
+
+.hero-image {
+  height: 280px;
+}
+
+.thumb-grid img {
+  height: 64px;
+}
+
+.review-card,
+.assistant-mini-card,
+.assistant-bubble {
+  border-radius: 12px;
+  padding: 0.56rem;
+}
+
+.payment-inline-grid {
+  gap: 0.52rem;
+}
+
+@media (max-width: 900px) {
+  .market-nav,
+  .market-main {
+    width: min(1120px, 95%);
+  }
+
+  .market-nav {
+    padding: 0.52rem 0.56rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .market-actions {
+    width: 100%;
+    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.36rem;
+  }
+
+  .market-actions .market-user-chip {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+
+  .market-main {
+    margin-top: 0.72rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .market-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .market-btn {
+    text-align: center;
+  }
+
+  .filter-card,
+  .content-card {
+    padding: 0.64rem;
+  }
+
+  .results-grid,
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-image {
+    height: 220px;
+  }
+}

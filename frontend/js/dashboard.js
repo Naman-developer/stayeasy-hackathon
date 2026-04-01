@@ -441,6 +441,164 @@ const initResponsiveTableCards = () => {
   });
 };
 
+const initPortalSectionManager = () => {
+  const main = document.querySelector(".dashboard-main");
+  if (!main) return;
+
+  const allSections = Array.from(main.querySelectorAll(".section-card"));
+  if (!allSections.length) return;
+
+  const managedSections = [];
+
+  const getSectionLabel = (section, index) => {
+    const titleNode = section.querySelector(".section-title h1, .section-title h2, .section-title h3");
+    const title = (titleNode?.textContent || "").trim();
+    if (title) return title;
+    return `Section ${index + 1}`;
+  };
+
+  const setCollapsedState = (section, collapsed) => {
+    const body = section.querySelector(":scope > .section-collapse-body");
+    const toggleBtn = section.querySelector(":scope > .section-title .section-collapse-toggle");
+    if (!body || !toggleBtn) return;
+
+    section.classList.toggle("is-collapsed", collapsed);
+    toggleBtn.setAttribute("aria-expanded", String(!collapsed));
+    toggleBtn.textContent = collapsed ? "Expand" : "Collapse";
+  };
+
+  allSections.forEach((section, index) => {
+    if (section.dataset.portalManaged === "1") return;
+
+    const titleRow = section.querySelector(":scope > .section-title");
+    if (!titleRow) return;
+
+    const siblings = Array.from(section.children).filter((child) => child !== titleRow);
+    if (!siblings.length) return;
+
+    const body = document.createElement("div");
+    body.className = "section-collapse-body";
+    siblings.forEach((node) => body.appendChild(node));
+    section.appendChild(body);
+
+    const toggleBtn = document.createElement("button");
+    toggleBtn.type = "button";
+    toggleBtn.className = "section-collapse-toggle";
+    toggleBtn.textContent = "Collapse";
+    toggleBtn.setAttribute("aria-expanded", "true");
+    titleRow.appendChild(toggleBtn);
+
+    if (!section.id) {
+      section.id = `portal-section-${index + 1}`;
+    }
+
+    section.dataset.portalManaged = "1";
+    managedSections.push({
+      id: section.id,
+      label: getSectionLabel(section, index),
+      node: section,
+    });
+
+    toggleBtn.addEventListener("click", () => {
+      const currentlyCollapsed = section.classList.contains("is-collapsed");
+      setCollapsedState(section, !currentlyCollapsed);
+    });
+  });
+
+  if (!managedSections.length) return;
+
+  const switcher = document.createElement("section");
+  switcher.className = "portal-module-switcher section-card";
+  switcher.innerHTML = `
+    <div class="section-title">
+      <h2>Quick Modules</h2>
+      <button type="button" class="portal-compact-toggle">Compact: ON</button>
+    </div>
+    <div class="portal-module-chips"></div>
+  `;
+
+  const chipsWrap = switcher.querySelector(".portal-module-chips");
+  const compactToggle = switcher.querySelector(".portal-compact-toggle");
+
+  const buttons = [];
+  let compactMode = window.matchMedia("(max-width: 900px)").matches;
+
+  const setActiveChip = (targetId) => {
+    buttons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.target === targetId);
+    });
+  };
+
+  const applyCompactMode = (targetId = managedSections[0].id) => {
+    compactToggle.textContent = compactMode ? "Compact: ON" : "Compact: OFF";
+
+    if (!compactMode) {
+      managedSections.forEach((entry) => setCollapsedState(entry.node, false));
+      setActiveChip("all");
+      return;
+    }
+
+    managedSections.forEach((entry) => {
+      const shouldOpen = entry.id === targetId;
+      setCollapsedState(entry.node, !shouldOpen);
+    });
+    setActiveChip(targetId);
+  };
+
+  const jumpToSection = (entry) => {
+    if (!entry) return;
+    if (compactMode) {
+      applyCompactMode(entry.id);
+    } else {
+      setCollapsedState(entry.node, false);
+      setActiveChip(entry.id);
+    }
+
+    entry.node.scrollIntoView({ behavior: "smooth", block: "start" });
+    entry.node.classList.add("section-focus");
+    setTimeout(() => entry.node.classList.remove("section-focus"), 1800);
+  };
+
+  const allBtn = document.createElement("button");
+  allBtn.type = "button";
+  allBtn.className = "portal-module-chip";
+  allBtn.dataset.target = "all";
+  allBtn.textContent = "All Sections";
+  allBtn.addEventListener("click", () => {
+    compactMode = false;
+    applyCompactMode();
+  });
+  chipsWrap.appendChild(allBtn);
+  buttons.push(allBtn);
+
+  managedSections.forEach((entry) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "portal-module-chip";
+    btn.dataset.target = entry.id;
+    btn.textContent = entry.label;
+    btn.addEventListener("click", () => {
+      jumpToSection(entry);
+    });
+    chipsWrap.appendChild(btn);
+    buttons.push(btn);
+  });
+
+  compactToggle.addEventListener("click", () => {
+    compactMode = !compactMode;
+    applyCompactMode();
+  });
+
+  const firstSection = managedSections[0]?.node;
+  if (firstSection) {
+    main.insertBefore(switcher, firstSection);
+  } else {
+    main.prepend(switcher);
+  }
+
+  applyCompactMode();
+};
+
 const mountDashboardSidebar = (user = {}) => {
   const shell = document.querySelector(".dashboard-shell");
   const topbar = shell?.querySelector(".topbar");
@@ -721,6 +879,7 @@ const bootstrapDashboard = async () => {
   mountDashboardSidebar(user);
   initTopbarSearch();
   initResponsiveTableCards();
+  initPortalSectionManager();
 
   initNotificationBell(token);
   const freshUser = await verifySession(token);

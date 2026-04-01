@@ -796,3 +796,247 @@ body {
   background: linear-gradient(130deg, #58c9ff, #8fc5ff);
   box-shadow: 0 6px 0 #2f86d8, 0 12px 22px rgba(80, 158, 214, 0.32);
 }
+
+/* Final compact polish layer (public pages) */
+:root {
+  --radius-xl: 1rem;
+}
+
+body {
+  line-height: 1.45;
+}
+
+.navbar,
+.hero,
+.section,
+.footer {
+  width: min(1140px, 93%);
+}
+
+.navbar {
+  margin-top: 0.75rem;
+  padding: 0.68rem 0.82rem;
+  gap: 0.6rem;
+}
+
+.brand {
+  font-size: 1rem;
+}
+
+.solid-btn,
+.ghost-btn {
+  padding: 0.58rem 0.9rem;
+  font-size: 0.84rem;
+  border-radius: 12px;
+}
+
+.home-user-chip {
+  padding: 0.4rem 0.62rem;
+  font-size: 0.72rem;
+}
+
+.hero {
+  margin-top: 1.25rem;
+  gap: 1rem;
+}
+
+.hero-content {
+  gap: 0.74rem;
+}
+
+.hero-content h1 {
+  font-size: clamp(1.56rem, 3vw, 2.36rem);
+  line-height: 1.15;
+}
+
+.subtitle {
+  font-size: 0.92rem;
+}
+
+.hero-points span {
+  padding: 0.22rem 0.52rem;
+  font-size: 0.7rem;
+}
+
+.hero-cta {
+  gap: 0.55rem;
+}
+
+.search-card {
+  padding: 0.8rem;
+}
+
+.search-card h2 {
+  font-size: 1.03rem;
+}
+
+.search-sub {
+  margin-bottom: 0.56rem;
+  font-size: 0.82rem;
+}
+
+.search-card form {
+  gap: 0.5rem;
+}
+
+.search-card label {
+  font-size: 0.78rem;
+  margin-bottom: 0.22rem;
+}
+
+.search-card input,
+.search-card select,
+.search-card button[type="button"] {
+  padding: 0.54rem 0.64rem;
+  font-size: 0.83rem;
+}
+
+.tag-btn {
+  padding: 0.44rem 0.28rem;
+  font-size: 0.73rem;
+}
+
+.section {
+  margin-top: 0.95rem;
+  padding: 0.82rem;
+}
+
+.section-head {
+  margin-bottom: 0.56rem;
+  gap: 0.56rem;
+}
+
+.section-head h2 {
+  font-size: 1.04rem;
+  line-height: 1.2;
+}
+
+.section-head p {
+  font-size: 0.8rem;
+}
+
+.featured-track {
+  gap: 0.58rem;
+  grid-auto-columns: minmax(220px, 1fr);
+}
+
+.featured-body {
+  padding: 0.62rem;
+}
+
+.featured-card img {
+  height: 136px;
+}
+
+.featured-card h3 {
+  font-size: 0.95rem;
+}
+
+.featured-meta,
+.featured-action,
+.info-card p,
+.trust-badge p,
+.testimonial p {
+  font-size: 0.8rem;
+}
+
+.grid-3,
+.badge-grid,
+.testimonial-grid {
+  gap: 0.58rem;
+}
+
+.info-card,
+.trust-badge,
+.testimonial,
+.service-chip {
+  padding: 0.64rem;
+}
+
+.service-chip {
+  font-size: 0.78rem;
+}
+
+.cta-band {
+  padding: 0.8rem;
+}
+
+.cta-band h2 {
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.cta-band p {
+  font-size: 0.82rem;
+}
+
+.footer {
+  margin-top: 0.95rem;
+  margin-bottom: 0.95rem;
+  padding: 0.82rem;
+}
+
+.footer h3 {
+  font-size: 1rem;
+}
+
+.footer small,
+.footer p,
+.footer a {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .navbar,
+  .hero,
+  .section,
+  .footer {
+    width: min(1140px, 95%);
+  }
+
+  .hero {
+    margin-top: 0.95rem;
+  }
+
+  .section {
+    margin-top: 0.78rem;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(1.35rem, 4.7vw, 1.86rem);
+  }
+
+  .section-head h2 {
+    font-size: 0.98rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .navbar {
+    padding: 0.5rem;
+    gap: 0.42rem;
+  }
+
+  .brand {
+    font-size: 0.9rem;
+  }
+
+  .section,
+  .search-card {
+    padding: 0.68rem;
+  }
+
+  .hero-points {
+    gap: 0.3rem;
+  }
+
+  .hero-points span {
+    font-size: 0.66rem;
+    padding: 0.18rem 0.44rem;
+  }
+
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
