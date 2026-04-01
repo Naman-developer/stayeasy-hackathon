@@ -1639,8 +1639,8 @@ body.home-sidebar-open {
 
 @media (max-width: 700px) {
   .navbar {
-    grid-template-columns: 1fr;
-    justify-items: start;
+    grid-template-columns: 1fr auto;
+    justify-items: stretch;
   }
 
   .brand {
@@ -1663,5 +1663,35 @@ body.home-sidebar-open {
   .hero::before {
     background-size: 94%;
     opacity: 0.1;
+  }
+}
+
+/* Header alignment override: brand left, actions right */
+.navbar {
+  grid-template-columns: 1fr auto;
+}
+
+.brand {
+  order: 1;
+  justify-self: start;
+}
+
+.nav-left {
+  order: 2;
+  justify-self: end;
+}
+
+.nav-left .ghost-btn,
+.nav-left .solid-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .nav-left {
+    justify-self: end;
   }
 }
