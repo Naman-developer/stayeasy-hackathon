@@ -1501,9 +1501,9 @@ body.home-sidebar-open {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: url("../assets/arosaty-logo.jpeg") center/68% contain no-repeat;
-  opacity: 0.14;
-  filter: saturate(0.9) contrast(1.05) brightness(1.05);
+  background: url("../assets/hero-logo-watermark.jpeg") center/64% contain no-repeat;
+  opacity: 0.16;
+  filter: saturate(0.92) contrast(1.06) brightness(1.06);
 }
 
 .hero-content {
@@ -1615,8 +1615,8 @@ body.home-sidebar-open {
   }
 
   .hero::before {
-    background-size: 84%;
-    opacity: 0.12;
+    background-size: 78%;
+    opacity: 0.13;
   }
 
   .hero-content h1 {
@@ -1661,8 +1661,8 @@ body.home-sidebar-open {
   }
 
   .hero::before {
-    background-size: 94%;
-    opacity: 0.1;
+    background-size: 88%;
+    opacity: 0.11;
   }
 }
 
