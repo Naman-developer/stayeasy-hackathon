@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Worker Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="worker">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Worker</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Worker Portal</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Track earnings, repeat customers, and live
+          availability.
+        </p>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p>Total Jobs</p>
+          <h3 id="workerTotalJobs">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Completed Jobs</p>
+          <h3 id="workerCompletedJobs">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Confirmed Jobs</p>
+          <h3 id="workerConfirmedJobs">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Total Earnings</p>
+          <h3 id="workerTotalEarnings">Rs 0</h3>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Worker Profile Setup</h2>
+          </div>
+          <div id="workerProfileMessage" class="message"></div>
+          <form id="workerProfileForm" class="form-grid">
+            <div class="field">
+              <label for="profileServiceType">Service Type</label>
+              <select id="profileServiceType" required>
+                <option value="">Select</option>
+                <option value="maid">Maid</option>
+                <option value="cook">Cook</option>
+                <option value="sweeper">Sweeper</option>
+                <option value="electrician">Electrician</option>
+                <option value="plumber">Plumber</option>
+                <option value="cleaner">Cleaner</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="profileCity">City</label>
+              <input id="profileCity" required />
+            </div>
+            <div class="field">
+              <label for="profileCharges">Charges (Rs)</label>
+              <input id="profileCharges" type="number" min="1" required />
+            </div>
+            <div class="field">
+              <label for="profileAvailabilityToggle">Availability</label>
+              <label class="checklist-item" for="profileAvailabilityToggle">
+                <input id="profileAvailabilityToggle" type="checkbox" />
+                <span>Online / Available</span>
+              </label>
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button class="btn primary" type="submit">Save Worker Profile</button>
+              <a class="btn ghost" href="./worker.html" style="text-decoration:none">Open Helper Marketplace</a>
+            </div>
+          </form>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Profile Status</h2>
+          </div>
+          <p id="workerVerificationStatus" class="small-text">Verification: N/A</p>
+          <p id="workerRatingStatus" class="small-text">Rating: N/A</p>
+          <p id="workerAvailabilityStatus" class="small-text">Availability: N/A</p>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Daily Earnings Tracker (7 Days)</h2>
+        </div>
+        <div id="workerDailyEarningsBars" class="mini-bars"></div>
+        <p id="workerDailyEarningsTotal" class="page-note">Weekly earnings: Rs 0</p>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>My Worker Bookings</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking</th>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="workerBookingsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/worker.js"></script>
+  </body>
+</html>

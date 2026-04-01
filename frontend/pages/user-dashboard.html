@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | User Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="student,tenant">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">User</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Student / Tenant Dashboard</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Phase 1 completed with
+          role-based access.
+        </p>
+      </section>
+
+      <section class="cards">
+        <article class="card">
+          <h3>Find Stays</h3>
+          <p>Search verified PGs, hostels, and rooms.</p>
+        </article>
+        <article class="card">
+          <h3>My Bookings</h3>
+          <p>Track your booking status in one place.</p>
+        </article>
+        <article class="card">
+          <h3>Helper Services</h3>
+          <p>Book workers like cleaner, maid, or electrician.</p>
+        </article>
+      </section>
+    </div>
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+  </body>
+</html>

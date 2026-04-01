@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Helper Marketplace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/marketplace.css" />
+  </head>
+  <body class="marketplace-body">
+    <header class="market-nav">
+      <a class="market-brand" href="../index.html">StayEasy</a>
+      <div class="market-actions">
+        <a class="market-btn ghost" href="./worker-dashboard.html">Worker Dashboard</a>
+        <a class="market-btn primary" href="./login.html">Login</a>
+      </div>
+    </header>
+
+    <main class="market-main">
+      <section class="filter-card">
+        <h2>Find Trusted Helpers</h2>
+        <p class="muted-text">
+          Search by city and service type. Platform commission is auto-applied.
+        </p>
+        <form id="workerSearchForm" class="filter-form" style="margin-top: 0.7rem">
+          <div class="filter-field">
+            <label for="workerCity">City</label>
+            <input id="workerCity" placeholder="Delhi" />
+          </div>
+          <div class="filter-field">
+            <label for="workerType">Service Type</label>
+            <select id="workerType">
+              <option value="">All</option>
+              <option value="maid">Maid</option>
+              <option value="cook">Cook</option>
+              <option value="sweeper">Sweeper</option>
+              <option value="electrician">Electrician</option>
+              <option value="plumber">Plumber</option>
+              <option value="cleaner">Cleaner</option>
+            </select>
+          </div>
+          <button class="market-btn primary" type="submit">Search Helpers</button>
+        </form>
+      </section>
+
+      <section class="booking-grid">
+        <article class="content-card">
+          <h3>Available Worker Profiles</h3>
+          <div id="workerCardsGrid" class="results-grid" style="margin-top: 0.8rem"></div>
+          <p id="workerEmptyState" class="muted-text" style="display: none; margin-top: 0.8rem">
+            No workers found for selected filters.
+          </p>
+        </article>
+
+        <article class="content-card">
+          <h3>Book Selected Worker</h3>
+          <p class="muted-text">Choose a worker from the left and submit details.</p>
+          <div id="workerBookingMessage" class="message-box"></div>
+          <form id="workerBookingForm" style="margin-top: 0.7rem">
+            <div class="filter-field">
+              <label for="selectedWorkerName">Selected Worker</label>
+              <input id="selectedWorkerName" readonly placeholder="Select a worker card first" />
+            </div>
+            <div class="filter-field">
+              <label for="workerServiceType">Service Type</label>
+              <input id="workerServiceType" readonly />
+            </div>
+            <div class="filter-field">
+              <label for="workerDate">Date</label>
+              <input id="workerDate" type="date" required />
+            </div>
+            <div class="filter-field">
+              <label for="workerTime">Time</label>
+              <input id="workerTime" type="time" required />
+            </div>
+            <div class="filter-field">
+              <label for="workerAmount">Amount (Rs)</label>
+              <input id="workerAmount" type="number" min="1" required />
+            </div>
+            <button class="market-btn primary" type="submit">Book Worker</button>
+          </form>
+        </article>
+      </section>
+    </main>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/worker.js"></script>
+  </body>
+</html>

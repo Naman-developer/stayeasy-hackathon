@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Parent Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="parent">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Parent</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Parent Portal</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Track live status, weekly trends, and
+          quickly check on your child.
+        </p>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Linked Child Access</h2>
+        </div>
+        <div id="parentMessage" class="message"></div>
+        <form id="parentLookupForm" class="form-grid">
+          <div class="field">
+            <label for="parentStudentId">Student ID / Code / Email / Phone</label>
+            <input id="parentStudentId" placeholder="STU0001 or student email/phone" required />
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Load Child Dashboard</button>
+            <button id="parentCheckChildBtn" class="btn ghost" type="button">Check on Child</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p>Live Status</p>
+          <h3 id="parentLiveStatus">Unknown</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Weekly Attendance %</p>
+          <h3 id="parentWeeklyAttendancePercent">0%</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Weekly Outpass Count</p>
+          <h3 id="parentWeeklyOutpassCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Attendance Records</p>
+          <h3 id="parentAttendanceCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Pending Outpass</p>
+          <h3 id="parentPendingOutpass">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Approved Outpass</p>
+          <h3 id="parentApprovedOutpass">0</h3>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Child Profile</h2>
+          </div>
+          <div id="parentChildProfile" class="small-text">No child data loaded yet.</div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Mess Schedule</h2>
+          </div>
+          <div id="parentMessSchedule" class="small-text">No mess schedule loaded yet.</div>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Attendance Logs</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody id="parentAttendanceBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Outpass Requests</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Parent Approval</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="parentOutpassBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Share Community Review</h2>
+          <span class="score-badge">Goes to Owner + Admin</span>
+        </div>
+        <form id="parentReviewForm" class="form-grid">
+          <div class="field">
+            <label for="parentReviewRating">Rating</label>
+            <select id="parentReviewRating" required>
+              <option value="5">5 - Excellent</option>
+              <option value="4">4 - Good</option>
+              <option value="3">3 - Average</option>
+              <option value="2">2 - Poor</option>
+              <option value="1">1 - Bad</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="parentReviewTitle">Title</label>
+            <input id="parentReviewTitle" placeholder="Good parent visibility" maxlength="120" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="parentReviewMessage">Review Message</label>
+            <textarea
+              id="parentReviewMessage"
+              required
+              maxlength="1200"
+              placeholder="Share your parent-side experience about tracking, safety, and communication."
+            ></textarea>
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Submit Review</button>
+          </div>
+        </form>
+        <div class="table-wrap" style="margin-top: 0.8rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rating</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="parentReviewsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/parent.js"></script>
+  </body>
+</html>

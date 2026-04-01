@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Hostel Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="hostel_owner">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Hostel Owner</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Hostel Portal</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Manage students, attendance, mess, and
+          communication from one place.
+        </p>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p>Total Students</p>
+          <h3 id="hostelStudentCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Attendance Present</p>
+          <h3 id="hostelPresentCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Attendance Absent</p>
+          <h3 id="hostelAbsentCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Pending Outpass</p>
+          <h3 id="hostelPendingOutpass">0</h3>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Late Entry Alert</h2>
+          <span class="score-badge">Last 7 Days</span>
+        </div>
+        <div id="hostelLateEntriesList" class="late-alert-list">
+          <div class="empty-state">Loading late entry alerts...</div>
+        </div>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Mess Feedback</h2>
+          </div>
+          <div class="pill-row">
+            <span class="feedback-pill">Today 👍 <strong id="hostelMessFeedbackUp">0</strong></span>
+            <span class="feedback-pill">Today 👎 <strong id="hostelMessFeedbackDown">0</strong></span>
+            <span class="feedback-pill">7-Day Total <strong id="hostelMessFeedbackTotal">0</strong></span>
+          </div>
+          <p class="page-note" id="hostelMessFeedbackMeta">Feedback summary loading...</p>
+          <button id="hostelMessFeedbackRefreshBtn" class="btn ghost" type="button">Refresh Feedback</button>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Broadcast Message</h2>
+          </div>
+          <form id="hostelBroadcastForm" class="form-grid">
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="hostelBroadcastMessage">Message for all students + parents</label>
+              <textarea id="hostelBroadcastMessage" required></textarea>
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button class="btn primary" type="submit">Send Broadcast</button>
+            </div>
+          </form>
+          <p id="hostelBroadcastResult" class="page-note">No broadcast sent yet.</p>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>My Hostel / PG Listings</h2>
+          <a class="btn ghost" href="./owner-dashboard.html" style="text-decoration:none">
+            Manage Listings
+          </a>
+        </div>
+        <div id="hostelMessage" class="message"></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>City</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="hostelListingsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Add Student to Hostel</h2>
+          </div>
+          <form id="hostelAddStudentForm" class="form-grid">
+            <div class="field">
+              <label for="hostelStudentId">Student ID / Code</label>
+              <input id="hostelStudentId" placeholder="STU0001 or Mongo ID" required />
+            </div>
+            <div class="field">
+              <label for="hostelPropertySelect">Property</label>
+              <select id="hostelPropertySelect" required></select>
+            </div>
+            <div class="field">
+              <label for="hostelRoomNumber">Room Number</label>
+              <input id="hostelRoomNumber" required />
+            </div>
+            <div class="field">
+              <label for="hostelFeeStatus">Fee Status</label>
+              <select id="hostelFeeStatus">
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="hostelMessPlan">Mess Plan</label>
+              <input id="hostelMessPlan" placeholder="Standard Veg Plan" />
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button class="btn primary" type="submit">Add Student</button>
+            </div>
+          </form>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Mark Attendance</h2>
+          </div>
+          <form id="hostelAttendanceForm" class="form-grid">
+            <div class="field">
+              <label for="attendanceStudentId">Student ID / Code</label>
+              <input id="attendanceStudentId" placeholder="STU0001 or Mongo ID" required />
+            </div>
+            <div class="field">
+              <label for="attendanceStatus">Status</label>
+              <select id="attendanceStatus">
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="attendanceDate">Date</label>
+              <input id="attendanceDate" type="date" />
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="attendanceNote">Note</label>
+              <input id="attendanceNote" />
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button class="btn primary" type="submit">Mark Attendance</button>
+            </div>
+          </form>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Mess Schedule</h2>
+        </div>
+        <form id="hostelMessForm" class="form-grid">
+          <div class="field">
+            <label for="messPropertySelect">Property</label>
+            <select id="messPropertySelect" required></select>
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="messWeeklyMenu">Weekly Menu</label>
+            <textarea
+              id="messWeeklyMenu"
+              placeholder="Format: Day|Breakfast|Lunch|Dinner (one line each)"
+            ></textarea>
+          </div>
+          <div class="field">
+            <label for="messTimings">Timings</label>
+            <input id="messTimings" placeholder="Breakfast 8 AM, Lunch 1 PM, Dinner 8 PM" />
+          </div>
+          <div class="field">
+            <label for="messRules">Rules</label>
+            <input id="messRules" placeholder="No food wastage. Dinner closes 9:30 PM." />
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Save Mess Schedule</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Students List</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student (Code)</th>
+                  <th>Email</th>
+                  <th>Room</th>
+                  <th>Property</th>
+                  <th>Fee</th>
+                </tr>
+              </thead>
+              <tbody id="hostelStudentsBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Outpass Requests</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Reason</th>
+                  <th>Parent</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="hostelOutpassBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/hostel.js"></script>
+  </body>
+</html>

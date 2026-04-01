@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Search Properties</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/marketplace.css" />
+  </head>
+  <body class="marketplace-body">
+    <header class="market-nav">
+      <a class="market-brand" href="../index.html">StayEasy</a>
+      <div class="market-actions">
+        <a class="market-btn ghost" href="./login.html">Login</a>
+        <a class="market-btn primary" href="./signup.html">Sign Up</a>
+      </div>
+    </header>
+
+    <main class="market-main">
+      <section class="filter-card">
+        <form id="searchForm" class="filter-form">
+          <div class="filter-field">
+            <label for="city">City</label>
+            <input id="city" name="city" placeholder="Delhi" />
+            <div id="citySuggestions" class="suggestion-box"></div>
+          </div>
+          <div class="filter-field">
+            <label for="locality">Locality</label>
+            <input id="locality" name="locality" placeholder="Mukherjee Nagar / Sector 62" />
+          </div>
+          <div class="filter-field">
+            <label for="type">Type</label>
+            <select id="type" name="type">
+              <option value="">All</option>
+              <option value="hostel">Hostel</option>
+              <option value="pg">PG</option>
+              <option value="flat">Flat</option>
+              <option value="room">Room</option>
+              <option value="hotel">Hotel</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="minPrice">Min Price</label>
+            <input id="minPrice" name="minPrice" type="number" min="0" placeholder="5000" />
+          </div>
+          <div class="filter-field">
+            <label for="maxPrice">Max Price</label>
+            <input id="maxPrice" name="maxPrice" type="number" min="0" placeholder="25000" />
+          </div>
+          <div class="filter-field">
+            <label for="preferences">Preferences</label>
+            <input
+              id="preferences"
+              name="preferences"
+              placeholder="wifi, ac, veg_food, privacy, campus_distance"
+            />
+          </div>
+          <button type="submit" class="market-btn primary">Search</button>
+        </form>
+      </section>
+
+      <section class="content-card">
+        <h2>Available Approved Listings</h2>
+        <p class="muted-text">
+          Only admin-approved properties are visible in this public search.
+        </p>
+        <div id="resultsGrid" class="results-grid" style="margin-top: 0.8rem"></div>
+        <p id="emptyState" class="empty-block" style="display: none; margin-top: 0.8rem">
+          No properties found for this filter.
+        </p>
+      </section>
+
+      <section class="content-card">
+        <div style="display: flex; justify-content: space-between; gap: 0.8rem; align-items: center; flex-wrap: wrap">
+          <div>
+            <h2>AI Recommended For You</h2>
+            <p class="muted-text">Budget + city + preferences based ranking for students and tenants.</p>
+          </div>
+          <button id="refreshAiBtn" type="button" class="market-btn ghost">Refresh AI Picks</button>
+        </div>
+        <div id="aiRecommendationGrid" class="results-grid" style="margin-top: 0.8rem"></div>
+        <p id="aiRecommendationEmpty" class="empty-block" style="display: none; margin-top: 0.8rem"></p>
+      </section>
+    </main>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/search.js"></script>
+  </body>
+</html>

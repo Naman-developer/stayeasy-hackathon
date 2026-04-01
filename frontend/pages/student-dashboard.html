@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Student Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="student">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Student</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Student Portal</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Manage safety, hostel updates, and daily
+          tasks from one place.
+        </p>
+        <p class="small-text" id="studentCodeLine">
+          Student ID: <strong id="studentCodeValue">Loading...</strong>
+        </p>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p>Safety Score</p>
+          <h3 id="studentSafetyScore">0/100</h3>
+          <p class="hint" id="studentSafetyHint">Last 7 days</p>
+        </article>
+        <article class="kpi-card">
+          <p>Attendance Logs</p>
+          <h3 id="studentAttendanceCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Pending Outpass</p>
+          <h3 id="studentPendingOutpass">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>My Bookings</p>
+          <h3 id="studentBookingCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Open Complaints</p>
+          <h3 id="studentOpenComplaints">0</h3>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Quick Emergency Panel</h2>
+          <span class="score-badge">Notify Only Mode</span>
+        </div>
+        <div id="studentMessage" class="message"></div>
+        <div class="emergency-panel">
+          <button id="callParentBtn" class="btn warning" type="button">Call Parent</button>
+          <button id="callHostelBtn" class="btn ghost" type="button">Call Hostel</button>
+          <button id="sosButton" class="btn danger" type="button">SOS</button>
+        </div>
+        <p class="page-note">
+          Emergency actions generate instant notifications to linked contacts (simulated flow).
+        </p>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Rent Split + Deal Tools</h2>
+        </div>
+        <div class="tool-grid">
+          <article class="tool-card">
+            <p class="tool-title">Rent Split Tool</p>
+            <div class="form-grid" style="margin-top: 0.5rem">
+              <div class="field">
+                <label for="studentRentTotal">Total Rent (Rs)</label>
+                <input id="studentRentTotal" type="number" min="0" placeholder="18000" />
+              </div>
+              <div class="field">
+                <label for="studentRoommates">Roommates</label>
+                <input id="studentRoommates" type="number" min="1" value="3" />
+              </div>
+            </div>
+            <button id="studentRentCalcBtn" class="btn primary" style="margin-top: 0.55rem" type="button">
+              Auto Divide
+            </button>
+            <div id="studentRentShare" class="tool-result">Each person share: Rs 0</div>
+          </article>
+
+          <article class="tool-card">
+            <p class="tool-title">Deal Indicator</p>
+            <div class="form-grid" style="margin-top: 0.5rem">
+              <div class="field">
+                <label for="studentDealBudget">Your Budget (Rs)</label>
+                <input id="studentDealBudget" type="number" min="0" placeholder="10000" />
+              </div>
+              <div class="field">
+                <label for="studentDealExpectedRent">Expected Rent (Rs)</label>
+                <input id="studentDealExpectedRent" type="number" min="0" placeholder="9200" />
+              </div>
+            </div>
+            <button id="studentDealCheckBtn" class="btn primary" style="margin-top: 0.55rem" type="button">
+              Check Deal
+            </button>
+            <div id="studentDealResult" class="tool-result">Budget comparison will appear here.</div>
+          </article>
+
+          <article class="tool-card">
+            <p class="tool-title">Move-in Checklist</p>
+            <div class="checklist-list" style="margin-top: 0.52rem">
+              <label class="checklist-item" for="checklistElectricity">
+                <input id="checklistElectricity" type="checkbox" />
+                <span>Electricity</span>
+              </label>
+              <label class="checklist-item" for="checklistWater">
+                <input id="checklistWater" type="checkbox" />
+                <span>Water</span>
+              </label>
+              <label class="checklist-item" for="checklistAgreement">
+                <input id="checklistAgreement" type="checkbox" />
+                <span>Agreement</span>
+              </label>
+            </div>
+            <button id="studentChecklistSaveBtn" class="btn primary" style="margin-top: 0.55rem" type="button">
+              Save Checklist
+            </button>
+            <div id="studentChecklistStatus" class="tool-result">Checklist status pending.</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>AI-powered Recommendation System</h2>
+        </div>
+        <form id="studentRecommendationForm" class="form-grid">
+          <div class="field">
+            <label for="recommendCity">City</label>
+            <input id="recommendCity" placeholder="Delhi" />
+          </div>
+          <div class="field">
+            <label for="recommendType">Type</label>
+            <select id="recommendType">
+              <option value="">Any</option>
+              <option value="hostel">Hostel</option>
+              <option value="pg">PG</option>
+              <option value="room">Room</option>
+              <option value="flat">Flat</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="recommendBudget">Budget (max Rs)</label>
+            <input id="recommendBudget" type="number" min="0" />
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Load Recommendations</button>
+          </div>
+        </form>
+        <div id="studentRecommendationsGrid" class="cards" style="margin-top: 0.8rem"></div>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Mess Schedule</h2>
+          </div>
+          <div id="studentMessBox" class="small-text">Loading mess schedule...</div>
+          <div class="form-actions" style="margin-top: 0.7rem">
+            <button id="studentMessUpBtn" class="btn success" type="button">👍 Today</button>
+            <button id="studentMessDownBtn" class="btn warning" type="button">👎 Today</button>
+          </div>
+          <p id="studentMessFeedbackStatus" class="page-note">Daily mess feedback not submitted.</p>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Outpass Request</h2>
+          </div>
+          <form id="studentOutpassForm" class="form-grid">
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="outpassReason">Reason</label>
+              <textarea id="outpassReason" required></textarea>
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button class="btn primary" type="submit">Submit Outpass Request</button>
+            </div>
+          </form>
+          <div class="table-wrap" style="margin-top: 0.8rem">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Parent</th>
+                </tr>
+              </thead>
+              <tbody id="studentOutpassBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Attendance Logs</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody id="studentAttendanceBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>My Property Bookings</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                </tr>
+              </thead>
+              <tbody id="studentBookingsBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Complaints</h2>
+        </div>
+        <form id="studentComplaintForm" class="form-grid">
+          <div class="field">
+            <label for="complaintCategory">Category</label>
+            <input id="complaintCategory" placeholder="maintenance / safety / mess" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="complaintMessage">Message</label>
+            <textarea id="complaintMessage" required></textarea>
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Raise Complaint</button>
+          </div>
+        </form>
+        <div class="table-wrap" style="margin-top: 0.8rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Response</th>
+              </tr>
+            </thead>
+            <tbody id="studentComplaintsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Share Community Review</h2>
+          <span class="score-badge">Goes to Owner + Admin</span>
+        </div>
+        <form id="studentReviewForm" class="form-grid">
+          <div class="field">
+            <label for="studentReviewRating">Rating</label>
+            <select id="studentReviewRating" required>
+              <option value="5">5 - Excellent</option>
+              <option value="4">4 - Good</option>
+              <option value="3">3 - Average</option>
+              <option value="2">2 - Poor</option>
+              <option value="1">1 - Bad</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="studentReviewTitle">Title</label>
+            <input id="studentReviewTitle" placeholder="Safe and comfortable stay" maxlength="120" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="studentReviewMessage">Review Message</label>
+            <textarea
+              id="studentReviewMessage"
+              required
+              maxlength="1200"
+              placeholder="Share your experience in hostel/stay and support quality improvement."
+            ></textarea>
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Submit Review</button>
+          </div>
+        </form>
+        <div class="table-wrap" style="margin-top: 0.8rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rating</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="studentReviewsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/sos.js"></script>
+  </body>
+</html>

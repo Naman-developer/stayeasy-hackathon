@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Booking & Payment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/marketplace.css" />
+  </head>
+  <body class="marketplace-body">
+    <header class="market-nav">
+      <a class="market-brand" href="../index.html">StayEasy</a>
+      <div class="market-actions">
+        <a class="market-btn ghost" href="./search-results.html">Continue Search</a>
+        <a class="market-btn primary" href="./login.html">Login</a>
+      </div>
+    </header>
+
+    <main class="market-main">
+      <section class="content-card">
+        <h2>Booking + Payment</h2>
+        <p class="muted-text">
+          Complete booking first, then click Pay Now (Razorpay if configured, otherwise mock).
+        </p>
+        <div id="bookingMessage" class="message-box"></div>
+      </section>
+
+      <section class="booking-grid">
+        <article class="content-card">
+          <h3>Selected Property</h3>
+          <div id="bookingPropertyBox">
+            <p class="muted-text">Loading selected property...</p>
+          </div>
+        </article>
+
+        <article class="content-card">
+          <h3>Booking Form</h3>
+          <form id="bookingForm">
+            <div class="filter-field">
+              <label for="checkInDate">Check-in Date</label>
+              <input id="checkInDate" name="checkInDate" type="date" required />
+            </div>
+            <div class="filter-field">
+              <label for="checkOutDate">Check-out Date</label>
+              <input id="checkOutDate" name="checkOutDate" type="date" required />
+            </div>
+            <button class="market-btn primary" type="submit">Create Booking</button>
+          </form>
+
+          <div id="paymentBox" style="display: none; margin-top: 1rem">
+            <h4 style="margin-bottom: 0.5rem">Payment</h4>
+            <p id="bookingSummary" class="muted-text"></p>
+
+            <div class="filter-field" style="margin: 0.7rem 0 0.5rem">
+              <label for="paymentMethod">Choose Payment Method</label>
+              <select id="paymentMethod" name="paymentMethod">
+                <option value="upi_qr">UPI QR (Scan & Pay)</option>
+                <option value="card">Credit/Debit Card</option>
+                <option value="netbanking">Net Banking</option>
+                <option value="wallet">Wallet</option>
+              </select>
+            </div>
+            <p id="paymentMethodHint" class="muted-text" style="margin: 0 0 0.7rem">
+              Scan QR and enter UTR after payment. Booking confirms only then.
+            </p>
+
+            <button id="payNowBtn" type="button" class="market-btn primary">Pay Now</button>
+
+            <div id="upiQrPanel" class="upi-panel">
+              <strong>Scan This UPI QR</strong>
+              <p class="muted-text" style="margin: 0.25rem 0 0.55rem">
+                After scanning and paying, enter transaction ID (UTR) to confirm booking.
+              </p>
+              <div class="upi-qr-frame">
+                <canvas id="upiQrCanvas" width="180" height="180"></canvas>
+                <img id="upiQrImage" alt="UPI QR Code" />
+              </div>
+              <p class="muted-text" id="upiIdText" style="margin-top: 0.55rem"></p>
+              <div class="filter-field" style="margin-top: 0.6rem">
+                <label for="utrInput">UTR / Transaction ID</label>
+                <input
+                  id="utrInput"
+                  type="text"
+                  placeholder="Enter UTR after successful scan payment"
+                  autocomplete="off"
+                />
+              </div>
+              <button id="confirmUpiBtn" type="button" class="market-btn primary" style="margin-top: 0.65rem">
+                I Have Paid - Confirm Booking
+              </button>
+            </div>
+
+            <div id="cardPanel" class="upi-panel">
+              <strong>Enter Card Details</strong>
+              <p class="muted-text" style="margin: 0.25rem 0 0.55rem">
+                Fill card details and click confirm to complete mock payment.
+              </p>
+              <div class="filter-field" style="margin-top: 0.2rem">
+                <label for="cardHolderName">Card Holder Name</label>
+                <input id="cardHolderName" type="text" placeholder="Name on card" autocomplete="cc-name" />
+              </div>
+              <div class="filter-field" style="margin-top: 0.6rem">
+                <label for="cardNumber">Card Number</label>
+                <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" autocomplete="cc-number" />
+              </div>
+              <div class="payment-inline-grid">
+                <div class="filter-field">
+                  <label for="cardExpiry">Expiry (MM/YY)</label>
+                  <input id="cardExpiry" type="text" maxlength="5" placeholder="MM/YY" autocomplete="cc-exp" />
+                </div>
+                <div class="filter-field">
+                  <label for="cardCvv">CVV</label>
+                  <input id="cardCvv" type="password" inputmode="numeric" maxlength="4" placeholder="CVV" autocomplete="cc-csc" />
+                </div>
+              </div>
+              <button id="confirmCardBtn" type="button" class="market-btn primary" style="margin-top: 0.65rem">
+                Confirm Card Payment
+              </button>
+            </div>
+
+            <div id="netbankingPanel" class="upi-panel">
+              <strong>Net Banking Details</strong>
+              <p class="muted-text" style="margin: 0.25rem 0 0.55rem">
+                Select bank and enter transaction reference to confirm payment.
+              </p>
+              <div class="filter-field" style="margin-top: 0.2rem">
+                <label for="bankName">Bank</label>
+                <select id="bankName">
+                  <option value="">Select Bank</option>
+                  <option value="SBI">State Bank of India</option>
+                  <option value="HDFC">HDFC Bank</option>
+                  <option value="ICICI">ICICI Bank</option>
+                  <option value="AXIS">Axis Bank</option>
+                  <option value="KOTAK">Kotak Mahindra Bank</option>
+                </select>
+              </div>
+              <div class="filter-field" style="margin-top: 0.6rem">
+                <label for="bankAccountHolder">Account Holder Name</label>
+                <input id="bankAccountHolder" type="text" placeholder="Account holder name" />
+              </div>
+              <div class="filter-field" style="margin-top: 0.6rem">
+                <label for="bankRef">Bank Transaction Ref</label>
+                <input id="bankRef" type="text" placeholder="Example: NBK12345678" />
+              </div>
+              <button id="confirmNetbankingBtn" type="button" class="market-btn primary" style="margin-top: 0.65rem">
+                Confirm Net Banking Payment
+              </button>
+            </div>
+
+            <div id="walletPanel" class="upi-panel">
+              <strong>Wallet Payment Details</strong>
+              <p class="muted-text" style="margin: 0.25rem 0 0.55rem">
+                Choose wallet and provide transaction ID to confirm payment.
+              </p>
+              <div class="filter-field" style="margin-top: 0.2rem">
+                <label for="walletProvider">Wallet Provider</label>
+                <select id="walletProvider">
+                  <option value="">Select Wallet</option>
+                  <option value="PAYTM">Paytm</option>
+                  <option value="PHONEPE">PhonePe Wallet</option>
+                  <option value="AMAZONPAY">Amazon Pay</option>
+                  <option value="MOBIKWIK">MobiKwik</option>
+                </select>
+              </div>
+              <div class="filter-field" style="margin-top: 0.6rem">
+                <label for="walletMobile">Wallet Mobile Number</label>
+                <input id="walletMobile" type="text" inputmode="numeric" maxlength="10" placeholder="10 digit mobile number" />
+              </div>
+              <div class="filter-field" style="margin-top: 0.6rem">
+                <label for="walletTxnId">Wallet Transaction ID</label>
+                <input id="walletTxnId" type="text" placeholder="Example: WLT99887766" />
+              </div>
+              <button id="confirmWalletBtn" type="button" class="market-btn primary" style="margin-top: 0.65rem">
+                Confirm Wallet Payment
+              </button>
+            </div>
+
+            <div id="paymentSuccessCard" class="payment-success">
+              <strong>Payment Successful</strong>
+              <p id="paymentSuccessText" class="muted-text" style="margin-top: 0.3rem"></p>
+              <div style="margin-top: 0.6rem">
+                <a class="market-btn ghost" href="./search-results.html">Book Another Property</a>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="../js/ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="../js/booking.js"></script>
+  </body>
+</html>

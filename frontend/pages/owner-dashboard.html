@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Owner Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="owner,flat_owner,pg_owner,hostel_owner">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Owner</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Owner Portal</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Manage listings, trust metrics, occupancy,
+          and featured boosts.
+        </p>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p>Total Listings</p>
+          <h3 id="kpiTotalListings">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Approved Listings</p>
+          <h3 id="kpiApprovedListings">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Pending Listings</p>
+          <h3 id="kpiPendingListings">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Total Earnings (Paid)</p>
+          <h3 id="kpiEarnings">Rs 0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Total Booking Count</p>
+          <h3 id="kpiBookingCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Occupancy Rate (Manual)</p>
+          <h3 id="ownerOccupancyRateKpi">0%</h3>
+          <p class="hint" id="ownerOccupancyKpiSubtext">0/0 rooms filled</p>
+        </article>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2 id="propertyFormTitle">Add New Property</h2>
+          </div>
+          <div id="ownerFormMessage" class="message"></div>
+          <form id="propertyForm" class="form-grid">
+            <input id="editPropertyId" type="hidden" />
+            <div class="field">
+              <label for="title">Title</label>
+              <input id="title" name="title" required />
+            </div>
+            <div class="field">
+              <label for="propertyType">Type</label>
+              <select id="propertyType" name="propertyType" required>
+                <option value="">Select</option>
+                <option value="hostel">Hostel</option>
+                <option value="pg">PG</option>
+                <option value="flat">Flat</option>
+                <option value="room">Room</option>
+                <option value="hotel">Hotel</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="city">City</label>
+              <input id="city" name="city" required />
+            </div>
+            <div class="field">
+              <label for="address">Address</label>
+              <input id="address" name="address" required />
+            </div>
+            <div class="field">
+              <label for="price">Price (Rs)</label>
+              <input id="price" name="price" type="number" min="0" required />
+            </div>
+            <div class="field">
+              <label for="priceType">Price Type</label>
+              <select id="priceType" name="priceType">
+                <option value="monthly">Monthly</option>
+                <option value="daily">Daily</option>
+                <option value="hourly">Hourly</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="occupancy">Occupancy</label>
+              <input id="occupancy" name="occupancy" type="number" min="1" value="1" />
+            </div>
+            <div class="field">
+              <label for="genderPreference">Gender Preference</label>
+              <select id="genderPreference" name="genderPreference">
+                <option value="any">Any</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="images">Image URLs (optional, comma-separated)</label>
+              <textarea id="images" name="images"></textarea>
+              <p class="field-hint">You can paste image links and/or upload local images below.</p>
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="imageFiles">Upload Property Images (multiple)</label>
+              <input id="imageFiles" type="file" accept="image/*" multiple />
+              <div class="form-actions" style="margin-top: 0.45rem">
+                <button id="clearImageSelectionBtn" class="btn ghost" type="button">
+                  Clear Uploaded Images
+                </button>
+              </div>
+              <div id="imagePreviewGrid" class="image-preview-grid"></div>
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="amenities">Amenities (comma-separated)</label>
+              <textarea id="amenities" name="amenities"></textarea>
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button id="savePropertyBtn" class="btn primary" type="submit">Save Property</button>
+              <button id="cancelEditBtn" class="btn ghost" type="button" style="display: none">
+                Cancel Edit
+              </button>
+            </div>
+          </form>
+          <p class="page-note">
+            New properties remain <strong>pending</strong> until admin approval. Occupancy is managed
+            by admin in this phase.
+          </p>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Owner Bookings</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Property</th>
+                  <th>User</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                </tr>
+              </thead>
+              <tbody id="ownerBookingsTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>My Listings</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>City</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Feature</th>
+                <th>Occupancy</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ownerListingsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>AI Rent Suggestion</h2>
+          </div>
+          <p class="small-text">
+            Get a recommended rent based on city, locality, room type, occupancy and amenities.
+          </p>
+          <form id="rentSuggestionForm" class="form-grid" style="margin-top: 0.75rem">
+            <div class="field">
+              <label for="rentCity">City</label>
+              <input id="rentCity" required />
+            </div>
+            <div class="field">
+              <label for="rentLocality">Locality</label>
+              <input id="rentLocality" placeholder="Optional locality" />
+            </div>
+            <div class="field">
+              <label for="rentPropertyType">Property Type</label>
+              <select id="rentPropertyType" required>
+                <option value="hostel">Hostel</option>
+                <option value="pg">PG</option>
+                <option value="flat">Flat</option>
+                <option value="room">Room</option>
+                <option value="hotel">Hotel</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="rentOccupancy">Occupancy</label>
+              <input id="rentOccupancy" type="number" min="1" value="1" />
+            </div>
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="rentAmenities">Amenities (comma-separated)</label>
+              <input id="rentAmenities" placeholder="wifi, ac, mess, parking" />
+            </div>
+            <div class="form-actions" style="grid-column: 1 / -1">
+              <button id="rentSuggestionBtn" class="btn primary" type="submit">Get AI Rent Hint</button>
+            </div>
+          </form>
+          <div id="rentSuggestionResult" class="empty-state" style="margin-top: 0.75rem">
+            Suggestion will appear here.
+          </div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>Tenant Trust Score</h2>
+          </div>
+          <p class="small-text">
+            Reliability score derived from verification, complaints, and payment behavior.
+          </p>
+          <div class="table-wrap" style="margin-top: 0.75rem">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tenant</th>
+                  <th>Trust Score</th>
+                  <th>Band</th>
+                  <th>Paid %</th>
+                  <th>Active Complaints</th>
+                </tr>
+              </thead>
+              <tbody id="tenantTrustTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Incoming User Reviews</h2>
+        </div>
+        <p class="small-text">
+          Reviews submitted by students, tenants, and parents. Same feed is also visible to admin.
+        </p>
+        <div class="table-wrap" style="margin-top: 0.75rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Reviewer</th>
+                <th>Role</th>
+                <th>Rating</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="ownerReviewsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/property.js"></script>
+  </body>
+</html>

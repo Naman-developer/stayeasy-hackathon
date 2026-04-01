@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Sign Up</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/auth.css" />
+  </head>
+  <body>
+    <div class="auth-shell">
+      <section class="auth-brand">
+        <div>
+          <h1>StayEasy</h1>
+          <p>
+            One platform for safe accommodation, helper access, and role-based
+            living management.
+          </p>
+        </div>
+        <ul class="auth-points">
+          <li>Verified users and role-based dashboards</li>
+          <li>Made for students, tenants, owners, workers, and parents</li>
+          <li>Hackathon MVP optimized for live demo flow</li>
+        </ul>
+      </section>
+
+      <section class="auth-card">
+        <h2>Create Account</h2>
+        <p class="auth-sub">Sign up and continue to your role dashboard.</p>
+        <div id="formMessage" class="message"></div>
+
+        <form id="signupForm" class="auth-form">
+          <div class="auth-row">
+            <label>
+              Full Name
+              <input name="name" type="text" required />
+            </label>
+            <label>
+              Email
+              <input name="email" type="email" required />
+            </label>
+          </div>
+
+          <div class="auth-row">
+            <label>
+              Phone Number
+              <input name="phone" type="text" required />
+            </label>
+            <label>
+              City
+              <input name="city" type="text" placeholder="Ex: Jaipur" />
+            </label>
+          </div>
+
+          <label>
+            Select Role
+            <select name="role" id="roleSelect" required>
+              <option value="">Choose your role</option>
+              <option value="student">Student</option>
+              <option value="tenant">Tenant</option>
+              <option value="owner">Owner</option>
+              <option value="flat_owner">Flat Owner</option>
+              <option value="pg_owner">PG Owner</option>
+              <option value="hostel_owner">Hostel Owner</option>
+              <option value="parent">Parent</option>
+              <option value="worker">Worker</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+
+          <div id="roleSpecificFields"></div>
+
+          <div class="auth-row">
+            <label>
+              Password
+              <input name="password" type="password" minlength="6" required />
+            </label>
+            <label>
+              Confirm Password
+              <input
+                name="confirmPassword"
+                type="password"
+                minlength="6"
+                required
+              />
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </form>
+
+        <p class="auth-links">
+          Already have an account? <a href="./login.html">Login</a>
+        </p>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/auth.js"></script>
+  </body>
+</html>

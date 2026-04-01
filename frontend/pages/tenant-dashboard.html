@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Tenant Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="tenant">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Tenant</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Tenant Dashboard</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Manage your complete
+          tenant journey in one place.
+        </p>
+      </section>
+
+      <div id="tenantMessage" class="message"></div>
+
+      <section class="kpi-grid">
+        <article class="kpi-card">
+          <p>Property Bookings</p>
+          <h3 id="tenantPropertyBookingCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Active Stays</p>
+          <h3 id="tenantActiveStaysCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Worker Bookings</p>
+          <h3 id="tenantWorkerBookingCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Open Complaints</p>
+          <h3 id="tenantOpenComplaintsCount">0</h3>
+        </article>
+        <article class="kpi-card">
+          <p>Total Spending</p>
+          <h3 id="tenantSpendTotal">Rs 0</h3>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Quick Actions</h2>
+        </div>
+        <div class="form-actions">
+          <a class="btn ghost" href="./search-results.html">Search Listings</a>
+          <a class="btn ghost" href="./worker.html">Book Helpers</a>
+          <a class="btn ghost" href="./search-results.html?type=flat">Find Flats</a>
+          <a class="btn ghost" href="./search-results.html?type=room">Find Rooms</a>
+        </div>
+        <p class="page-note">
+          Everything you do as a tenant appears below: bookings, helper services, complaints, and AI picks.
+        </p>
+      </section>
+
+      <section class="grid-two">
+        <article class="section-card">
+          <div class="section-title">
+            <h2>My Property Bookings</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Property</th>
+                  <th>Check-in / Out</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tenantPropertyBookingsBody"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="section-card">
+          <div class="section-title">
+            <h2>My Helper Bookings</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Worker</th>
+                  <th>Service</th>
+                  <th>Date & Time</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tenantWorkerBookingsBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Complaints</h2>
+        </div>
+        <form id="tenantComplaintForm" class="form-grid">
+          <div class="field">
+            <label for="tenantComplaintCategory">Category</label>
+            <input id="tenantComplaintCategory" placeholder="maintenance / payment / safety" />
+          </div>
+          <div class="field">
+            <label for="tenantComplaintPropertyId">Related Property (optional)</label>
+            <select id="tenantComplaintPropertyId">
+              <option value="">No property selected</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="tenantComplaintMessage">Message</label>
+            <textarea id="tenantComplaintMessage" required></textarea>
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Raise Complaint</button>
+          </div>
+        </form>
+
+        <div class="table-wrap" style="margin-top: 0.8rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Response</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody id="tenantComplaintsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>AI Recommended For You</h2>
+        </div>
+        <form id="tenantRecommendationForm" class="form-grid">
+          <div class="field">
+            <label for="tenantRecommendCity">City</label>
+            <input id="tenantRecommendCity" placeholder="Delhi" />
+          </div>
+          <div class="field">
+            <label for="tenantRecommendType">Type</label>
+            <select id="tenantRecommendType">
+              <option value="">Any</option>
+              <option value="flat">Flat</option>
+              <option value="room">Room</option>
+              <option value="pg">PG</option>
+              <option value="hostel">Hostel</option>
+              <option value="hotel">Hotel</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tenantRecommendBudget">Budget (max Rs)</label>
+            <input id="tenantRecommendBudget" type="number" min="0" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="tenantRecommendPrefs">Preferences (comma-separated)</label>
+            <input id="tenantRecommendPrefs" placeholder="wifi, ac, privacy" />
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Load Recommendations</button>
+          </div>
+        </form>
+        <div id="tenantRecommendationsGrid" class="cards" style="margin-top: 0.8rem"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Share Community Review</h2>
+          <span class="score-badge">Goes to Owner + Admin</span>
+        </div>
+        <form id="tenantReviewForm" class="form-grid">
+          <div class="field">
+            <label for="tenantReviewRating">Rating</label>
+            <select id="tenantReviewRating" required>
+              <option value="5">5 - Excellent</option>
+              <option value="4">4 - Good</option>
+              <option value="3">3 - Average</option>
+              <option value="2">2 - Poor</option>
+              <option value="1">1 - Bad</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tenantReviewTitle">Title</label>
+            <input id="tenantReviewTitle" placeholder="Nice tenant experience" maxlength="120" />
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="tenantReviewMessage">Review Message</label>
+            <textarea
+              id="tenantReviewMessage"
+              required
+              maxlength="1200"
+              placeholder="Share your stay, support, booking, or safety experience."
+            ></textarea>
+          </div>
+          <div class="form-actions" style="grid-column: 1 / -1">
+            <button class="btn primary" type="submit">Submit Review</button>
+          </div>
+        </form>
+        <div class="table-wrap" style="margin-top: 0.8rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rating</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="tenantReviewsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/tenant.js"></script>
+  </body>
+</html>

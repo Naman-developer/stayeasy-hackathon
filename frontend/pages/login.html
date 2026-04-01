@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/auth.css" />
+  </head>
+  <body>
+    <div class="auth-shell">
+      <section class="auth-brand">
+        <div>
+          <h1>Welcome Back</h1>
+          <p>
+            Login with email, phone, or Student ID and continue to your personalized
+            StayEasy dashboard.
+          </p>
+        </div>
+        <ul class="auth-points">
+          <li>Secure JWT authentication</li>
+          <li>Role-based redirection after login</li>
+          <li>Built for fast demo and easy extension</li>
+        </ul>
+      </section>
+
+      <section class="auth-card">
+        <h2>Login to StayEasy</h2>
+        <p class="auth-sub">Use your email, phone, or Student ID and password.</p>
+        <div id="formMessage" class="message"></div>
+
+        <form id="loginForm" class="auth-form">
+          <label>
+            Email / Phone / Student ID
+            <input
+              name="identifier"
+              type="text"
+              placeholder="you@example.com / 98XXXXXXXX / STU0001"
+              required
+            />
+          </label>
+
+          <label>
+            Password
+            <input name="password" type="password" minlength="6" required />
+          </label>
+
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+
+        <p class="auth-links">
+          New to StayEasy? <a href="./signup.html">Create account</a>
+        </p>
+      </section>
+    </div>
+
+    <script src="../js/ui.js"></script>
+    <script src="../js/auth.js"></script>
+  </body>
+</html>

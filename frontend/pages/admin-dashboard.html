@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StayEasy | Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+  </head>
+  <body data-allowed-roles="admin">
+    <div class="dashboard-shell">
+      <header class="topbar">
+        <a class="brand-link" href="../index.html">StayEasy</a>
+        <div class="profile-box">
+          <span id="userName">Admin</span>
+          <button class="logout-btn">Logout</button>
+        </div>
+      </header>
+
+      <section class="intro">
+        <h1 id="dashboardHeading">Admin Portal</h1>
+        <p>
+          Logged in as <strong id="userRole"></strong>. Govern approvals, occupancy, complaints,
+          and top property performance.
+        </p>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="kpi-card clickable-kpi" data-kpi="totalUsers">
+          <p>Total Users</p>
+          <h3 id="kpiUsers">0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="totalProperties">
+          <p>Total Properties</p>
+          <h3 id="kpiProperties">0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="totalBookings">
+          <p>Total Bookings</p>
+          <h3 id="kpiBookings">0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="totalRevenue">
+          <p>Total Revenue</p>
+          <h3 id="kpiRevenue">Rs 0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="totalWorkers">
+          <p>Total Workers</p>
+          <h3 id="kpiWorkers">0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="totalHostels">
+          <p>Total Hostel Owners</p>
+          <h3 id="kpiHostels">0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="hostelStudents">
+          <p>Hostel Students</p>
+          <h3 id="kpiHostelStudents">0</h3>
+        </article>
+        <article class="kpi-card clickable-kpi" data-kpi="escalatedComplaints">
+          <p>Escalated Complaints</p>
+          <h3 id="kpiEscalatedComplaints">0</h3>
+        </article>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Top Properties (Revenue)</h2>
+        </div>
+        <div id="topPropertiesGrid" class="top-properties-grid">
+          <div class="empty-state">Loading top properties...</div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Manual Occupancy Editor</h2>
+        </div>
+        <div id="adminMessage" class="message"></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>City</th>
+                <th>Total Rooms</th>
+                <th>Filled Rooms</th>
+                <th>Current %</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminOccupancyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2 id="kpiDetailTitle">KPI Details</h2>
+        </div>
+        <p id="kpiDetailDesc" class="small-text">
+          Click any KPI card above to inspect composition and detailed records.
+        </p>
+        <div id="kpiDetailBody" class="kpi-breakdown-grid" style="margin-top: 0.8rem"></div>
+        <div class="table-wrap" style="margin-top: 0.9rem">
+          <table class="data-table kpi-detail-table">
+            <thead id="kpiDetailTableHead"></thead>
+            <tbody id="kpiDetailTableBody"></tbody>
+          </table>
+        </div>
+        <p id="kpiDetailTableNote" class="small-text" style="margin-top: 0.5rem"></p>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Brief Platform Summary</h2>
+        </div>
+        <p class="small-text">Full KPI snapshot with quick composition hints.</p>
+        <div id="briefKpiGrid" class="kpi-breakdown-grid" style="margin-top: 0.8rem"></div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Revenue (Last 6 Months)</h2>
+        </div>
+        <canvas id="revenueChart" height="120"></canvas>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Pending Properties</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Owner</th>
+                <th>City</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pendingPropertiesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Recent Bookings</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>User</th>
+                <th>Property</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Payment</th>
+              </tr>
+            </thead>
+            <tbody id="adminBookingsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Escalated Complaints</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Raised By</th>
+                <th>Against</th>
+                <th>Property</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="escalatedComplaintsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>All User Complaints</h2>
+        </div>
+        <div class="form-grid" style="margin-bottom: 0.8rem">
+          <div class="field">
+            <label for="adminComplaintStatusFilter">Status Filter</label>
+            <select id="adminComplaintStatusFilter">
+              <option value="all">All</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="escalated">Escalated</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+          <div class="form-actions" style="align-self: end">
+            <button id="adminComplaintRefreshBtn" class="btn ghost" type="button">Refresh Complaints</button>
+          </div>
+        </div>
+
+        <div id="adminComplaintStats" class="kpi-breakdown-grid" style="margin-bottom: 0.8rem"></div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Category</th>
+                <th>Raised By</th>
+                <th>Against</th>
+                <th>Property</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Response</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAllComplaintsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>User Reviews Inbox</h2>
+        </div>
+        <p class="small-text">
+          Reviews from student/tenant/parent. Use visibility toggle to control landing page display.
+        </p>
+        <div class="table-wrap" style="margin-top: 0.75rem">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Reviewer</th>
+                <th>Role</th>
+                <th>Rating</th>
+                <th>Title</th>
+                <th>Message</th>
+                <th>Visibility</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminReviewsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <div class="section-title">
+          <h2>Recent Activity</h2>
+        </div>
+        <div id="recentActivityList" class="activity-list">
+          <div class="empty-state">Loading recent activity...</div>
+        </div>
+      </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script src="../js/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3,
+  .badge-grid,
+  .testimonial-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .service-preview {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .navbar {
+    top: 0.45rem;
+    padding: 0.75rem;
+  }
+
+  .nav-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .hero {
+    margin-top: 1.25rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .location-row {
+    grid-template-columns: 1fr;
+  }
+
+  .search-chip-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .carousel-btn {
+    display: none;
+  }
+
+  .grid-3,
+  .badge-grid,
+  .testimonial-grid,
+  .service-preview,
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-band {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .section,
+  .search-card {
+    padding: 0.85rem;
+  }
+
+  .brand {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StayEasy | Verified Stays & Helpers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/responsive.css" />
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="brand">
+      <span class="brand-badge">S</span>
+      <span>StayEasy</span>
+    </div>
+    <nav class="nav-actions">
+      <a class="ghost-btn" href="#how-it-works">How It Works</a>
+      <a class="ghost-btn" href="./pages/worker.html">Helpers</a>
+      <a class="ghost-btn" href="./pages/login.html">Login</a>
+      <a class="solid-btn" href="./pages/signup.html">Get Started</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <article class="hero-content reveal">
+        <p class="tag">Verified Accommodation. Zero Brokerage. Safer Living.</p>
+        <h1>Book trusted stays, manage hostel life, and access helpers in one platform.</h1>
+        <p class="subtitle">
+          StayEasy brings students, tenants, owners, hostel managers, parents, workers,
+          and admins into one fast marketplace built for safety and convenience.
+        </p>
+        <div class="hero-points">
+          <span>Verified Listings</span>
+          <span>No Brokerage</span>
+          <span>Parent Monitoring</span>
+          <span>SOS Safety</span>
+          <span>Helper Marketplace</span>
+        </div>
+        <div class="hero-cta">
+          <a class="solid-btn" href="./pages/signup.html">Create Free Account</a>
+          <a class="ghost-btn" href="./pages/search-results.html">Explore Listings</a>
+        </div>
+      </article>
+
+      <aside class="search-card reveal">
+        <h2>Find Your Stay</h2>
+        <p class="search-sub">Search by city, type, and budget. Fast and demo-ready.</p>
+        <form id="quickSearchForm">
+          <div>
+            <label for="locationInput">Location</label>
+            <div class="location-row">
+              <input id="locationInput" type="text" placeholder="Enter city or area" autocomplete="off" />
+              <button type="button" id="detectLocationBtn">Use Location</button>
+            </div>
+          </div>
+
+          <div>
+            <label for="propertyType">Property Type</label>
+            <select id="propertyType">
+              <option value="">Any</option>
+              <option value="hostel">Hostel</option>
+              <option value="pg">PG</option>
+              <option value="room">Tenant Room</option>
+              <option value="flat">Flat</option>
+              <option value="hotel">Hotel</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="quickBudget">Budget (optional)</label>
+            <input id="quickBudget" type="number" min="0" placeholder="Max budget in Rs" />
+          </div>
+
+          <div>
+            <label>Quick Categories</label>
+            <div class="search-chip-grid">
+              <button type="button" class="tag-btn" data-type="hostel">Hostel</button>
+              <button type="button" class="tag-btn" data-type="pg">PG</button>
+              <button type="button" class="tag-btn" data-type="flat">Flat</button>
+              <button type="button" class="tag-btn" data-type="hotel">Hotel</button>
+            </div>
+          </div>
+
+          <button type="submit" class="solid-btn full-width">Search Now</button>
+        </form>
+      </aside>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head">
+        <div>
+          <h2>Featured Listings</h2>
+          <p>Curated verified stays from popular cities.</p>
+        </div>
+      </div>
+      <div class="featured-wrap">
+        <button class="carousel-btn prev" id="featuredPrev" aria-label="Previous">
+          &#8249;
+        </button>
+        <div class="featured-track" id="featuredTrack"></div>
+        <button class="carousel-btn next" id="featuredNext" aria-label="Next">
+          &#8250;
+        </button>
+      </div>
+    </section>
+
+    <section class="section reveal" id="how-it-works">
+      <div class="section-head">
+        <div>
+          <h2>How StayEasy Works</h2>
+          <p>Simple workflow optimized for real-world accommodation journeys.</p>
+        </div>
+      </div>
+      <div class="grid-3">
+        <article class="info-card">
+          <h3>1. Sign up by role</h3>
+          <p>Students, tenants, owners, hostel managers, workers, and parents get tailored access.</p>
+        </article>
+        <article class="info-card">
+          <h3>2. Discover verified options</h3>
+          <p>Search approved properties and helper services with city, type, and budget filters.</p>
+        </article>
+        <article class="info-card">
+          <h3>3. Book, pay, and monitor</h3>
+          <p>Complete booking, payment, notifications, attendance tracking, and SOS from one dashboard.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head">
+        <div>
+          <h2>Trust & Safety</h2>
+          <p>Designed to reduce accommodation chaos and improve accountability.</p>
+        </div>
+      </div>
+      <div class="badge-grid">
+        <article class="trust-badge">
+          <strong>Admin Approved Listings</strong>
+          <p>Only approved properties appear in public search for confidence and quality.</p>
+        </article>
+        <article class="trust-badge">
+          <strong>No Brokerage Focus</strong>
+          <p>Direct tenant-owner model reduces friction and hidden brokerage costs.</p>
+        </article>
+        <article class="trust-badge">
+          <strong>Secure User Flow</strong>
+          <p>JWT authentication, role permissions, and event notifications for safer operations.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head">
+        <div>
+          <h2>Helper Services Preview</h2>
+          <p>Quickly connect with registered workers for daily and emergency tasks.</p>
+        </div>
+        <a class="ghost-btn" href="./pages/worker.html">Explore Helpers</a>
+      </div>
+      <div class="service-preview">
+        <div class="service-chip">Maid</div>
+        <div class="service-chip">Cook</div>
+        <div class="service-chip">Sweeper</div>
+        <div class="service-chip">Electrician</div>
+        <div class="service-chip">Plumber</div>
+        <div class="service-chip">Cleaner</div>
+        <div class="service-chip">Hostel Bulk Services</div>
+        <div class="service-chip">Priority Member Slots</div>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="section-head">
+        <div>
+          <h2>Community Reviews</h2>
+          <p>Live reviews submitted by student, tenant, and parent users.</p>
+        </div>
+      </div>
+      <div id="landingReviewGrid" class="testimonial-grid">
+        <article class="testimonial">
+          <p>
+            "Found my PG in less than 10 minutes. The verified badge gave me confidence to book."
+          </p>
+          <strong>Aditi, Student</strong>
+        </article>
+        <article class="testimonial">
+          <p>
+            "Listing and approval was clear. I could track status and bookings from one owner dashboard."
+          </p>
+          <strong>Rohit, Property Owner</strong>
+        </article>
+        <article class="testimonial">
+          <p>
+            "Parent view + outpass approvals makes hostel management transparent and safer for students."
+          </p>
+          <strong>Kavita, Parent</strong>
+        </article>
+      </div>
+    </section>
+
+    <section class="section reveal">
+      <div class="cta-band">
+        <div>
+          <h2>Ready to simplify accommodation and safety?</h2>
+          <p>Launch with role-based dashboards, approvals, booking, payments, and helper support.</p>
+        </div>
+        <div class="hero-cta">
+          <a class="solid-btn" href="./pages/signup.html">Get Started</a>
+          <a class="ghost-btn" href="./pages/search-results.html">Explore</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <h3>StayEasy</h3>
+        <p>
+          Multi-role accommodation and helper marketplace built for trusted living and fast operations.
+        </p>
+        <small>Contact: support@stayeasy.demo</small>
+      </div>
+      <div class="link-list">
+        <strong>Platform</strong>
+        <a href="./pages/search-results.html">Search Listings</a>
+        <a href="./pages/worker.html">Find Helpers</a>
+        <a href="./pages/signup.html">Create Account</a>
+      </div>
+      <div class="link-list">
+        <strong>Social</strong>
+        <a href="#">LinkedIn</a>
+        <a href="#">Instagram</a>
+        <a href="#">X / Twitter</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/ui.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+
+</html>
