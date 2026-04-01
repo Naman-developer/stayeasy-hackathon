@@ -21,13 +21,56 @@
 @media (max-width: 760px) {
   .navbar {
     top: 0.45rem;
-    padding: 0.75rem;
+    padding: 0.62rem 0.68rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.52rem;
+  }
+
+  .brand {
+    align-self: flex-start;
+    font-size: 0.95rem;
   }
 
   .nav-actions {
     width: 100%;
-    justify-content: flex-end;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.42rem;
+    justify-content: initial;
+    align-items: stretch;
+  }
+
+  .nav-actions .ghost-btn,
+  .nav-actions .solid-btn {
+    width: 100%;
+    min-height: 38px;
+    padding: 0.52rem 0.62rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .nav-actions .solid-btn {
+    grid-column: 1 / -1;
+    box-shadow: 0 3px 0 #2f86d8, 0 8px 14px rgba(80, 158, 214, 0.24);
+  }
+
+  .home-user-chip {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding: 0.42rem 0.62rem;
+    border-radius: 12px;
+    font-size: 0.74rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .home-logout-btn {
+    padding-inline: 0.62rem;
   }
 
   .hero {
@@ -66,6 +109,28 @@
 }
 
 @media (max-width: 480px) {
+  .navbar {
+    top: 0.34rem;
+    padding: 0.55rem;
+  }
+
+  .nav-actions {
+    grid-template-columns: 1fr;
+    gap: 0.34rem;
+  }
+
+  .nav-actions .solid-btn,
+  .home-user-chip {
+    grid-column: auto;
+  }
+
+  .nav-actions .ghost-btn,
+  .nav-actions .solid-btn,
+  .home-user-chip {
+    min-height: 34px;
+    font-size: 0.76rem;
+  }
+
   .section,
   .search-card {
     padding: 0.85rem;
