@@ -61,6 +61,51 @@ const renderNavbarForAuthState = () => {
   });
 };
 
+const initSmartHomeNavbar = () => {
+  const navbar = document.querySelector(".navbar");
+  if (!navbar) return;
+
+  let lastY = window.scrollY || 0;
+  let ticking = false;
+
+  const shouldEnable = () => window.matchMedia("(max-width: 900px)").matches;
+
+  const syncNavbar = () => {
+    if (!shouldEnable()) {
+      navbar.classList.remove("is-hidden");
+      lastY = window.scrollY || 0;
+      ticking = false;
+      return;
+    }
+
+    const currentY = window.scrollY || 0;
+    const delta = currentY - lastY;
+
+    if (currentY <= 56) {
+      navbar.classList.remove("is-hidden");
+    } else if (delta > 6) {
+      navbar.classList.add("is-hidden");
+    } else if (delta < -6) {
+      navbar.classList.remove("is-hidden");
+    }
+
+    lastY = currentY;
+    ticking = false;
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(syncNavbar);
+    },
+    { passive: true }
+  );
+
+  window.addEventListener("resize", syncNavbar, { passive: true });
+};
+
 const redirectToDashboardIfLoggedIn = () => {
   const token = localStorage.getItem("stayeasy_token");
   const user = getStoredUser();
@@ -358,6 +403,7 @@ if (quickSearchForm) {
 }
 
 renderNavbarForAuthState();
+initSmartHomeNavbar();
 loadFeaturedListings();
 loadLandingReviews();
 initFeaturedCarousel();

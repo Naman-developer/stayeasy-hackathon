@@ -67,6 +67,12 @@ a {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: var(--shadow-sm);
+  transition: transform 0.28s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar.is-hidden {
+  transform: translateY(calc(-100% - 12px));
+  opacity: 0.97;
 }
 
 .brand {
