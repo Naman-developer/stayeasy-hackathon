@@ -106,6 +106,7 @@
   let propertyBookingsCache = [];
   let workerBookingsCache = [];
   let complaintsCache = [];
+  let activeWorkerRatingBookingId = null;
 
   const updateKpis = () => {
     const activeStays = propertyBookingsCache.filter((item) =>
@@ -223,33 +224,90 @@
 
     if (!workerBookingsCache.length) {
       workerBookingsBody.innerHTML =
-        "<tr><td colspan='7' class='small-text'>No helper bookings yet.</td></tr>";
+        "<tr><td colspan='8' class='small-text'>No helper bookings yet.</td></tr>";
       return;
     }
 
     workerBookingsCache.forEach((booking) => {
-      const bookingCode = booking._id ? booking._id.slice(-6).toUpperCase() : "N/A";
+      const bookingId = String(booking._id || "");
+      const bookingCode = bookingId ? bookingId.slice(-6).toUpperCase() : "N/A";
       const workerName = booking.workerId?.userId?.name || "Worker";
       const canCancel = ["pending", "confirmed"].includes(booking.status);
+      const canRate =
+        booking.status === "completed" &&
+        booking.paymentStatus === "paid" &&
+        !booking.customerRating;
+      const showInlineRating = canRate && activeWorkerRatingBookingId === bookingId;
 
       const actions = [];
       if (canCancel) {
         actions.push(
           `<button class="btn danger" type="button" data-action="cancel-worker" data-id="${escapeHtml(
-            booking._id
+            bookingId
           )}">Cancel</button>`
         );
       }
+      if (canRate) {
+        actions.push(
+          `<button class="btn ghost" type="button" data-action="toggle-rate-worker" data-id="${escapeHtml(
+            bookingId
+          )}">${showInlineRating ? "Close" : "Rate"}</button>`
+        );
+      }
+
+      const ratingLabel = booking.customerRating
+        ? `<span class="feedback-pill">${escapeHtml(booking.customerRating)}/5</span>`
+        : "<span class='small-text'>Not rated</span>";
+      const defaultStars = 5;
+      const inlineRatingForm = showInlineRating
+        ? `
+          <div class="worker-rating-panel" data-selected-rating="${defaultStars}">
+            <p class="small-text">Rate this booking</p>
+            <div class="worker-rating-stars">
+              ${[1, 2, 3, 4, 5]
+                .map(
+                  (star) => `
+                    <button
+                      class="worker-star ${star <= defaultStars ? "active" : ""}"
+                      type="button"
+                      data-action="pick-worker-rating"
+                      data-id="${escapeHtml(bookingId)}"
+                      data-rating="${star}"
+                      aria-label="${star} star"
+                    >
+                      ${star <= defaultStars ? "&#9733;" : "&#9734;"}
+                    </button>
+                  `
+                )
+                .join("")}
+            </div>
+            <textarea
+              class="worker-rating-review"
+              maxlength="500"
+              placeholder="Optional review (max 500 chars)"
+            ></textarea>
+            <div class="inline-actions">
+              <button class="btn primary" type="button" data-action="submit-worker-rating" data-id="${escapeHtml(
+                bookingId
+              )}">Submit</button>
+              <button class="btn ghost" type="button" data-action="close-rate-worker" data-id="${escapeHtml(
+                bookingId
+              )}">Cancel</button>
+            </div>
+          </div>
+        `
+        : "";
 
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${escapeHtml(bookingCode)}</td>
-        <td>${escapeHtml(workerName)}</td>
-        <td>${escapeHtml(booking.serviceType || "-")}</td>
-        <td>${escapeHtml(formatDateTime(booking.date, booking.time))}</td>
-        <td>${escapeHtml(formatPrice(booking.amount))}</td>
-        <td>${statusPill(booking.status)}</td>
-        <td><div class="inline-actions">${actions.join("") || "-"}</div></td>
+        <td data-label="Booking">${escapeHtml(bookingCode)}</td>
+        <td data-label="Worker">${escapeHtml(workerName)}</td>
+        <td data-label="Service">${escapeHtml(booking.serviceType || "-")}</td>
+        <td data-label="Date & Time">${escapeHtml(formatDateTime(booking.date, booking.time))}</td>
+        <td data-label="Amount">${escapeHtml(formatPrice(booking.amount))}</td>
+        <td data-label="Status">${statusPill(booking.status)}</td>
+        <td data-label="Rating">${ratingLabel}</td>
+        <td data-label="Actions"><div class="inline-actions">${actions.join("") || "-"}</div>${inlineRatingForm}</td>
       `;
       workerBookingsBody.appendChild(row);
     });
@@ -331,7 +389,7 @@
   };
 
   const loadWorkerBookings = async () => {
-    setLoadingRows(workerBookingsBody, 7, "Loading helper bookings...");
+    setLoadingRows(workerBookingsBody, 8, "Loading helper bookings...");
     try {
       const response = await fetch(`${API_BASE_URL}/workers/my-bookings`, {
         headers: authHeaders(),
@@ -529,6 +587,37 @@
     }
   };
 
+  const submitWorkerRating = async (bookingId, rating, review = "") => {
+    if (!bookingId) return;
+
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      showMessage("Please enter a valid rating between 1 and 5.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/workers/bookings/${bookingId}/rate`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          rating,
+          review: String(review || "").trim().slice(0, 500),
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to submit helper rating.");
+      }
+
+      showMessage(data.message || "Helper rated successfully.", "success");
+      activeWorkerRatingBookingId = null;
+      await loadWorkerBookings();
+    } catch (error) {
+      showMessage(error.message);
+    }
+  };
+
   const submitComplaint = async (event) => {
     event.preventDefault();
 
@@ -603,15 +692,56 @@
   });
 
   workerBookingsBody.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-action='cancel-worker']");
+    const button = event.target.closest("button[data-action]");
     if (!button) return;
 
+    const action = button.dataset.action;
     const bookingId = button.dataset.id;
     if (!bookingId) return;
 
-    const confirmed = window.confirm("Cancel this helper booking?");
-    if (!confirmed) return;
-    cancelWorkerBooking(bookingId);
+    if (action === "cancel-worker") {
+      const confirmed = window.confirm("Cancel this helper booking?");
+      if (!confirmed) return;
+      cancelWorkerBooking(bookingId);
+      return;
+    }
+
+    if (action === "toggle-rate-worker") {
+      activeWorkerRatingBookingId =
+        activeWorkerRatingBookingId === bookingId ? null : bookingId;
+      renderWorkerBookings();
+      return;
+    }
+
+    if (action === "close-rate-worker") {
+      activeWorkerRatingBookingId = null;
+      renderWorkerBookings();
+      return;
+    }
+
+    if (action === "pick-worker-rating") {
+      const selectedRating = Number(button.dataset.rating || 0);
+      const panel = button.closest(".worker-rating-panel");
+      if (!panel) return;
+      panel.dataset.selectedRating = String(selectedRating);
+      const starButtons = panel.querySelectorAll(".worker-star");
+      starButtons.forEach((starButton) => {
+        const starValue = Number(starButton.dataset.rating || 0);
+        const active = starValue <= selectedRating;
+        starButton.classList.toggle("active", active);
+        starButton.innerHTML = active ? "&#9733;" : "&#9734;";
+      });
+      return;
+    }
+
+    if (action === "submit-worker-rating") {
+      const panel = button.closest(".worker-rating-panel");
+      if (!panel) return;
+      const selectedRating = Number(panel.dataset.selectedRating || 0);
+      const reviewInput = panel.querySelector(".worker-rating-review");
+      const review = reviewInput ? reviewInput.value : "";
+      submitWorkerRating(bookingId, selectedRating, review);
+    }
   });
 
   complaintForm?.addEventListener("submit", submitComplaint);

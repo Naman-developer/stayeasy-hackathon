@@ -45,6 +45,11 @@ const workerSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    totalReviews: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );

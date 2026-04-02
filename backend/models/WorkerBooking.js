@@ -60,6 +60,22 @@ const workerBookingSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    customerRating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: null,
+    },
+    customerReview: {
+      type: String,
+      trim: true,
+      maxlength: 500,
+      default: "",
+    },
+    ratedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

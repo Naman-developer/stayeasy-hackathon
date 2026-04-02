@@ -508,6 +508,105 @@ const completeWorkerBooking = async (req, res) => {
   }
 };
 
+const rateWorkerBooking = async (req, res) => {
+  try {
+    const booking = await WorkerBooking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Worker booking not found.",
+      });
+    }
+
+    if (String(booking.customerId) !== req.user.userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Only the booking customer can submit rating.",
+      });
+    }
+
+    if (booking.status === "cancelled") {
+      return res.status(400).json({
+        success: false,
+        message: "Cancelled booking cannot be rated.",
+      });
+    }
+
+    if (booking.paymentStatus !== "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "Only paid bookings can be rated.",
+      });
+    }
+
+    if (booking.status !== "completed") {
+      return res.status(400).json({
+        success: false,
+        message: "Please rate after service is marked completed.",
+      });
+    }
+
+    if (booking.customerRating) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating already submitted for this booking.",
+      });
+    }
+
+    const numericRating = Number(req.body.rating);
+    if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be an integer between 1 and 5.",
+      });
+    }
+
+    const review = String(req.body.review || "").trim().slice(0, 500);
+
+    booking.customerRating = numericRating;
+    booking.customerReview = review;
+    booking.ratedAt = new Date();
+    await booking.save();
+
+    const [ratingStats] = await WorkerBooking.aggregate([
+      {
+        $match: {
+          workerId: booking.workerId,
+          customerRating: { $gte: 1, $lte: 5 },
+        },
+      },
+      {
+        $group: {
+          _id: "$workerId",
+          averageRating: { $avg: "$customerRating" },
+          totalReviews: { $sum: 1 },
+        },
+      },
+    ]);
+
+    await Worker.findByIdAndUpdate(booking.workerId, {
+      rating: Number((ratingStats?.averageRating || 0).toFixed(1)),
+      totalReviews: Number(ratingStats?.totalReviews || 0),
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Worker rating submitted successfully.",
+      booking,
+      workerRating: {
+        average: Number((ratingStats?.averageRating || 0).toFixed(1)),
+        totalReviews: Number(ratingStats?.totalReviews || 0),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to submit worker rating.",
+      error: error.message,
+    });
+  }
+};
+
 const getWorkerDashboard = async (req, res) => {
   try {
     const workerProfile = await Worker.findOne({ userId: req.user.userId }).populate(
@@ -658,5 +757,6 @@ module.exports = {
   getMyWorkerBookings,
   cancelWorkerBooking,
   completeWorkerBooking,
+  rateWorkerBooking,
   getWorkerDashboard,
 };
