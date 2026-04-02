@@ -131,6 +131,17 @@
 
   const isAuthActionHref = (href = "") =>
     /(?:^|\/)(login|signup)\.html(?:$|[?#])/i.test(href);
+  const DASHBOARD_PAGE_SET = new Set(Object.values(ROLE_DASHBOARD_PAGE_MAP));
+  const isDashboardHref = (href = "") => {
+    if (!href) return false;
+    try {
+      const parsed = new URL(href, window.location.href);
+      const page = parsed.pathname.split("/").pop() || "";
+      return DASHBOARD_PAGE_SET.has(page);
+    } catch (error) {
+      return /dashboard\.html(?:$|[?#])/i.test(href);
+    }
+  };
 
   const getInitial = (name = "") => String(name || "U").trim().charAt(0).toUpperCase() || "U";
 
@@ -244,7 +255,7 @@
 
     const contextualLinks = [...actions.querySelectorAll("a.market-btn")].filter((anchor) => {
       const href = anchor.getAttribute("href") || "";
-      return !isAuthActionHref(href);
+      return !isAuthActionHref(href) && !isDashboardHref(href);
     });
 
     actions.innerHTML = "";
