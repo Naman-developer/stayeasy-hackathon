@@ -78,6 +78,27 @@
               <input id="profileCharges" type="number" min="1" required />
             </div>
             <div class="field">
+              <label for="profileImageUrl">Profile Photo URL</label>
+              <input id="profileImageUrl" type="text" placeholder="https://example.com/your-photo.jpg" />
+              <p class="field-hint">Add your face photo so customers can identify you.</p>
+            </div>
+            <div class="field">
+              <label for="profileImageFile">Upload Photo</label>
+              <input id="profileImageFile" type="file" accept="image/*" />
+              <p class="field-hint">Optional: upload image directly (max 2 MB).</p>
+            </div>
+            <div class="field">
+              <label>Photo Preview</label>
+              <div class="worker-photo-preview-wrap">
+                <img
+                  id="workerPhotoPreview"
+                  class="worker-photo-preview"
+                  src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80"
+                  alt="Worker profile preview"
+                />
+              </div>
+            </div>
+            <div class="field">
               <label for="profileAvailabilityToggle">Availability</label>
               <label class="checklist-item" for="profileAvailabilityToggle">
                 <input id="profileAvailabilityToggle" type="checkbox" />

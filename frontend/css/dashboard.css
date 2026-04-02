@@ -779,6 +779,23 @@ a {
   cursor: pointer;
 }
 
+.worker-photo-preview-wrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: var(--space-2);
+  width: fit-content;
+}
+
+.worker-photo-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  object-fit: cover;
+  display: block;
+}
+
 .top-property-card h4 {
   font-size: var(--font-size-base);
   line-height: var(--line-height-tight);

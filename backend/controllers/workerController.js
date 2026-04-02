@@ -7,6 +7,8 @@ const PLATFORM_COMMISSION_RATE = 0.16;
 const PRIORITY_COMMISSION_RATE = 0.15;
 const OPEN_AVAILABILITY_VALUES = new Set(["available", "online"]);
 const CLOSED_AVAILABILITY_VALUES = new Set(["offline", "unavailable"]);
+const IMAGE_URL_REGEX = /^https?:\/\/\S+$/i;
+const IMAGE_DATA_URI_REGEX = /^data:image\/[a-zA-Z0-9.+-]+;base64,/i;
 
 const normalizeAvailability = (value) => {
   const normalized = String(value || "")
@@ -16,6 +18,17 @@ const normalizeAvailability = (value) => {
   if (!normalized) return "available";
   if (OPEN_AVAILABILITY_VALUES.has(normalized)) return normalized;
   if (CLOSED_AVAILABILITY_VALUES.has(normalized)) return normalized;
+  return null;
+};
+
+const normalizeProfileImage = (value) => {
+  if (value === undefined || value === null) return undefined;
+
+  const normalized = String(value).trim();
+  if (!normalized) return "";
+  if (IMAGE_URL_REGEX.test(normalized) || IMAGE_DATA_URI_REGEX.test(normalized)) {
+    return normalized;
+  }
   return null;
 };
 
@@ -30,7 +43,7 @@ const calculateCommissionBreakdown = (amount, isPriorityMember) => {
 
 const registerWorker = async (req, res) => {
   try {
-    const { serviceType, city, charges, availability } = req.body;
+    const { serviceType, city, charges, availability, profileImage } = req.body;
 
     if (!serviceType || !city || charges === undefined) {
       return res.status(400).json({
@@ -53,6 +66,27 @@ const registerWorker = async (req, res) => {
         success: false,
         message: "availability must be online, offline, available, or unavailable.",
       });
+    }
+
+    const normalizedProfileImage = normalizeProfileImage(profileImage);
+    if (normalizedProfileImage === null) {
+      return res.status(400).json({
+        success: false,
+        message: "profileImage must be a valid http(s) URL or image data URL.",
+      });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Worker user account not found.",
+      });
+    }
+
+    if (normalizedProfileImage !== undefined) {
+      user.profileImage = normalizedProfileImage;
+      await user.save();
     }
 
     const payload = {
@@ -79,7 +113,7 @@ const registerWorker = async (req, res) => {
 
     const populatedWorker = await Worker.findById(worker._id).populate(
       "userId",
-      "name email phone city isPriorityMember"
+      "name email phone city profileImage isPriorityMember"
     );
 
     return res.status(200).json({
@@ -470,7 +504,7 @@ const getWorkerDashboard = async (req, res) => {
   try {
     const workerProfile = await Worker.findOne({ userId: req.user.userId }).populate(
       "userId",
-      "name email phone city"
+      "name email phone city profileImage"
     );
 
     if (!workerProfile) {

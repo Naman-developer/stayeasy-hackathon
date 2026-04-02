@@ -19,6 +19,18 @@
       currency: "INR",
       maximumFractionDigits: 0,
     });
+  const FALLBACK_WORKER_IMAGE =
+    "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80";
+  const IMAGE_URL_REGEX = /^https?:\/\/\S+$/i;
+  const IMAGE_DATA_URI_REGEX = /^data:image\/[a-zA-Z0-9.+-]+;base64,/i;
+
+  const resolveWorkerImage = (value) => {
+    const normalized = String(value || "").trim();
+    if (IMAGE_URL_REGEX.test(normalized) || IMAGE_DATA_URI_REGEX.test(normalized)) {
+      return normalized;
+    }
+    return FALLBACK_WORKER_IMAGE;
+  };
 
   const createStatusPill = (status) =>
     `<span class="status-pill ${status}">${status.replace("_", " ")}</span>`;
@@ -63,10 +75,11 @@
     workerEmptyState.style.display = "none";
 
     workers.forEach((worker) => {
+      const workerImage = resolveWorkerImage(worker.userId?.profileImage);
       const card = document.createElement("article");
       card.className = "property-card";
       card.innerHTML = `
-        <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80" alt="${
+        <img src="${workerImage}" alt="${
           worker.userId?.name || "Worker"
         }" />
         <div class="card-body">
@@ -185,6 +198,9 @@
   const workerRatingStatus = document.getElementById("workerRatingStatus");
   const workerAvailabilityStatus = document.getElementById("workerAvailabilityStatus");
   const profileAvailabilityToggle = document.getElementById("profileAvailabilityToggle");
+  const profileImageUrlInput = document.getElementById("profileImageUrl");
+  const profileImageFileInput = document.getElementById("profileImageFile");
+  const workerPhotoPreview = document.getElementById("workerPhotoPreview");
   const workerDailyEarningsBars = document.getElementById("workerDailyEarningsBars");
   const workerDailyEarningsTotal = document.getElementById("workerDailyEarningsTotal");
 
@@ -234,6 +250,47 @@
     return normalized === "online" || normalized === "available";
   };
 
+  const syncWorkerPhotoPreview = () => {
+    if (!workerPhotoPreview) return;
+    workerPhotoPreview.src = resolveWorkerImage(profileImageUrlInput?.value || "");
+  };
+
+  const readImageAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error(`Unable to read ${file.name}.`));
+      reader.readAsDataURL(file);
+    });
+
+  const handleProfileImageFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showWorkerProfileMessage("Please select a valid image file.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      showWorkerProfileMessage("Image size should be less than 2 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      const imageDataUrl = await readImageAsDataUrl(file);
+      if (profileImageUrlInput) {
+        profileImageUrlInput.value = imageDataUrl;
+      }
+      syncWorkerPhotoPreview();
+      showWorkerProfileMessage("Photo selected. Save profile to update marketplace image.", "success");
+    } catch (error) {
+      showWorkerProfileMessage(error.message || "Unable to process selected image.");
+    }
+  };
+
   const loadWorkerDashboard = async () => {
     if (!workerProfileForm) return;
     if (!token) {
@@ -254,6 +311,13 @@
       document.getElementById("profileServiceType").value = data.worker.serviceType || "";
       document.getElementById("profileCity").value = data.worker.city || "";
       document.getElementById("profileCharges").value = data.worker.charges || "";
+      if (profileImageUrlInput) {
+        profileImageUrlInput.value = data.worker.userId?.profileImage || "";
+      }
+      if (profileImageFileInput) {
+        profileImageFileInput.value = "";
+      }
+      syncWorkerPhotoPreview();
       if (profileAvailabilityToggle) {
         profileAvailabilityToggle.checked = toToggleAvailability(data.worker.availability);
       }
@@ -323,6 +387,7 @@
           city: document.getElementById("profileCity").value.trim(),
           charges: Number(document.getElementById("profileCharges").value),
           availability: profileAvailabilityToggle?.checked ? "online" : "offline",
+          profileImage: profileImageUrlInput?.value.trim() || "",
         }),
       });
       const data = await response.json();
@@ -360,6 +425,15 @@
   };
 
   if (workerProfileForm) {
+    profileImageUrlInput?.addEventListener("input", syncWorkerPhotoPreview);
+    profileImageUrlInput?.addEventListener("blur", () => {
+      if (profileImageUrlInput) {
+        profileImageUrlInput.value = profileImageUrlInput.value.trim();
+      }
+      syncWorkerPhotoPreview();
+    });
+    profileImageFileInput?.addEventListener("change", handleProfileImageFileChange);
+    syncWorkerPhotoPreview();
     workerProfileForm.addEventListener("submit", saveWorkerProfile);
     workerBookingsBody.addEventListener("click", handleWorkerBookingActions);
     loadWorkerDashboard();
