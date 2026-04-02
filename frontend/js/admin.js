@@ -8,7 +8,7 @@
   const kpiBookings = document.getElementById("kpiBookings");
   const kpiRevenue = document.getElementById("kpiRevenue");
   const kpiWorkers = document.getElementById("kpiWorkers");
-  const kpiHostels = document.getElementById("kpiHostels");
+  const kpiOwners = document.getElementById("kpiOwners");
   const kpiHostelStudents = document.getElementById("kpiHostelStudents");
   const kpiEscalatedComplaints = document.getElementById("kpiEscalatedComplaints");
 
@@ -55,6 +55,7 @@
   };
   const formatShortId = (value) =>
     value ? String(value).slice(-6).toUpperCase() : "-";
+  const OWNER_ROLE_KEYS = ["owner", "flat_owner", "pg_owner", "hostel_owner"];
 
   const toReadableLabel = (value = "") =>
     String(value)
@@ -697,8 +698,8 @@
         ])}`,
       },
       {
-        title: `Total Hostel Owners: ${formatNumber(kpis.totalHostels)}`,
-        brief: `Hostel owner accounts in users table: ${formatNumber(roleCounts.hostel_owner || 0)}`,
+        title: `Total Owners: ${formatNumber(kpis.totalOwners)}`,
+        brief: `Roles: ${buildInlineSummary(roleCounts, OWNER_ROLE_KEYS)}`,
       },
       {
         title: `Hostel Students: ${formatNumber(kpis.hostelStudents)}`,
@@ -869,36 +870,43 @@
         emptyText = "No worker records found.";
         break;
 
-      case "totalHostels":
-        title = "Hostel Owners Breakdown";
-        desc = "Hostel owner accounts and related listing categories.";
+      case "totalOwners":
+        title = "All Owners Breakdown";
+        desc = "All owner accounts across owner, flat_owner, pg_owner, and hostel_owner roles.";
         items = [
           {
-            label: "Hostel Owner Accounts",
-            value: breakdowns.roleCounts?.hostel_owner || 0,
+            label: "Owner Accounts",
+            value: kpis.totalOwners || 0,
           },
           {
-            label: "Hostel Listings",
-            value: breakdowns.propertyTypeCounts?.hostel || 0,
+            label: "Total Owner Listings",
+            value: (detailRecords.owners || []).reduce(
+              (sum, row) => sum + Number(row.totalListings || 0),
+              0
+            ),
           },
-          {
-            label: "PG Listings",
-            value: breakdowns.propertyTypeCounts?.pg || 0,
-          },
+          ...OWNER_ROLE_KEYS.map((role) => ({
+            label: `${toReadableLabel(role)} Accounts`,
+            value: breakdowns.roleCounts?.[role] || 0,
+          })),
         ];
         tableColumns = [
           { label: "Owner Name", key: "name" },
+          { label: "Role", key: "role" },
           { label: "Email", key: "email" },
           { label: "Phone", key: "phone" },
           { label: "City", key: "city" },
           { label: "Total Listings", key: "totalListings" },
           { label: "Hostel Listings", key: "hostelListings" },
           { label: "PG Listings", key: "pgListings" },
+          { label: "Flat Listings", key: "flatListings" },
+          { label: "Room Listings", key: "roomListings" },
+          { label: "Hotel Listings", key: "hotelListings" },
           { label: "Last Login", key: "lastLoginAt", type: "date" },
           { label: "Account Created", key: "createdAt", type: "date" },
         ];
-        tableRows = detailRecords.hostelOwners || [];
-        emptyText = "No hostel owner accounts found.";
+        tableRows = detailRecords.owners || [];
+        emptyText = "No owner accounts found.";
         break;
 
       case "hostelStudents":
@@ -1039,7 +1047,7 @@
       kpiBookings.textContent = data.kpis.totalBookings;
       kpiRevenue.textContent = `Rs ${Number(data.kpis.totalRevenue).toLocaleString("en-IN")}`;
       kpiWorkers.textContent = data.kpis.totalWorkers || 0;
-      kpiHostels.textContent = data.kpis.totalHostels || 0;
+      kpiOwners.textContent = data.kpis.totalOwners || 0;
       kpiHostelStudents.textContent = data.kpis.hostelStudents || 0;
       kpiEscalatedComplaints.textContent = data.kpis.escalatedComplaints || 0;
 

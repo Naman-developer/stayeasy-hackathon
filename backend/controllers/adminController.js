@@ -6,6 +6,7 @@ const HostelStudent = require("../models/HostelStudent");
 const Complaint = require("../models/Complaint");
 const Notification = require("../models/Notification");
 const { escalateOldComplaints } = require("../utils/complaintEscalation");
+const OWNER_ROLES = ["owner", "flat_owner", "pg_owner", "hostel_owner"];
 
 const toCountMap = (entries = []) =>
   entries.reduce((acc, item) => {
@@ -185,7 +186,7 @@ const getAdminDashboard = async (req, res) => {
       totalProperties,
       totalBookings,
       totalWorkers,
-      totalHostels,
+      totalOwners,
       hostelStudents,
       escalatedComplaints,
     ] = await Promise.all([
@@ -193,7 +194,7 @@ const getAdminDashboard = async (req, res) => {
       Property.countDocuments(),
       Booking.countDocuments(),
       Worker.countDocuments(),
-      User.countDocuments({ role: "hostel_owner" }),
+      User.countDocuments({ role: { $in: OWNER_ROLES } }),
       HostelStudent.countDocuments(),
       Complaint.countDocuments({ status: "escalated" }),
     ]);
@@ -336,7 +337,7 @@ const getAdminDashboard = async (req, res) => {
       bookingsDetailRaw,
       revenueBookingsRaw,
       workersDetailRaw,
-      hostelOwnersRaw,
+      ownerAccountsRaw,
       hostelStudentsRaw,
       escalatedComplaintDetailsRaw,
     ] = await Promise.all([
@@ -386,10 +387,10 @@ const getAdminDashboard = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(250)
         .populate("userId", "name email phone city lastLoginAt createdAt"),
-      User.find({ role: "hostel_owner" })
+      User.find({ role: { $in: OWNER_ROLES } })
         .sort({ createdAt: -1 })
         .limit(250)
-        .select("name email phone city createdAt lastLoginAt"),
+        .select("name email phone city role createdAt lastLoginAt"),
       HostelStudent.find()
         .sort({ createdAt: -1 })
         .limit(250)
@@ -415,12 +416,12 @@ const getAdminDashboard = async (req, res) => {
       isRead: item.isRead,
     }));
 
-    const hostelOwnerIds = hostelOwnersRaw.map((owner) => owner._id);
-    const hostelOwnerListingMap = {};
+    const ownerAccountIds = ownerAccountsRaw.map((owner) => owner._id);
+    const ownerListingMap = {};
 
-    if (hostelOwnerIds.length) {
+    if (ownerAccountIds.length) {
       const listingCountsRaw = await Property.aggregate([
-        { $match: { ownerId: { $in: hostelOwnerIds } } },
+        { $match: { ownerId: { $in: ownerAccountIds } } },
         {
           $group: {
             _id: { ownerId: "$ownerId", propertyType: "$propertyType" },
@@ -431,13 +432,13 @@ const getAdminDashboard = async (req, res) => {
 
       listingCountsRaw.forEach((entry) => {
         const ownerId = String(entry._id.ownerId);
-        if (!hostelOwnerListingMap[ownerId]) {
-          hostelOwnerListingMap[ownerId] = { total: 0 };
+        if (!ownerListingMap[ownerId]) {
+          ownerListingMap[ownerId] = { total: 0 };
         }
 
         const type = entry._id.propertyType || "other";
-        hostelOwnerListingMap[ownerId][type] = entry.count;
-        hostelOwnerListingMap[ownerId].total += entry.count;
+        ownerListingMap[ownerId][type] = entry.count;
+        ownerListingMap[ownerId].total += entry.count;
       });
     }
 
@@ -516,17 +517,21 @@ const getAdminDashboard = async (req, res) => {
         createdAt: worker.createdAt,
         lastLoginAt: worker.userId?.lastLoginAt || null,
       })),
-      hostelOwners: hostelOwnersRaw.map((owner) => {
-        const listingSummary = hostelOwnerListingMap[String(owner._id)] || { total: 0 };
+      owners: ownerAccountsRaw.map((owner) => {
+        const listingSummary = ownerListingMap[String(owner._id)] || { total: 0 };
         return {
           id: owner._id,
           name: owner.name,
           email: owner.email,
           phone: owner.phone,
+          role: owner.role || "-",
           city: owner.city || "-",
           totalListings: listingSummary.total || 0,
           hostelListings: listingSummary.hostel || 0,
           pgListings: listingSummary.pg || 0,
+          flatListings: listingSummary.flat || 0,
+          roomListings: listingSummary.room || 0,
+          hotelListings: listingSummary.hotel || 0,
           createdAt: owner.createdAt,
           lastLoginAt: owner.lastLoginAt,
         };
@@ -578,7 +583,7 @@ const getAdminDashboard = async (req, res) => {
         totalBookings,
         totalRevenue,
         totalWorkers,
-        totalHostels,
+        totalOwners,
         hostelStudents,
         escalatedComplaints,
       },
