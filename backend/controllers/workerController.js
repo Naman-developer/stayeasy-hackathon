@@ -9,6 +9,14 @@ const OPEN_AVAILABILITY_VALUES = new Set(["available", "online"]);
 const CLOSED_AVAILABILITY_VALUES = new Set(["offline", "unavailable"]);
 const IMAGE_URL_REGEX = /^https?:\/\/\S+$/i;
 const IMAGE_DATA_URI_REGEX = /^data:image\/[a-zA-Z0-9.+-]+;base64,/i;
+const toLocalDateKey = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const normalizeAvailability = (value) => {
   const normalized = String(value || "")
@@ -536,13 +544,15 @@ const getWorkerDashboard = async (req, res) => {
       (() => {
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 6);
+        const endDate = new Date();
+        endDate.setHours(23, 59, 59, 999);
 
         return WorkerBooking.find({
           workerId: workerProfile._id,
           paymentStatus: "paid",
           status: { $ne: "cancelled" },
-          date: { $gte: sinceDate },
-        }).select("date finalWorkerAmount");
+          createdAt: { $gte: sinceDate, $lte: endDate },
+        }).select("createdAt date finalWorkerAmount amount");
       })(),
       WorkerBooking.aggregate([
         {
@@ -605,7 +615,7 @@ const getWorkerDashboard = async (req, res) => {
     for (let i = 6; i >= 0; i -= 1) {
       const dayDate = new Date(today);
       dayDate.setDate(today.getDate() - i);
-      const key = dayDate.toISOString().slice(0, 10);
+      const key = toLocalDateKey(dayDate);
       earningsMap[key] = 0;
       dailyEarnings7d.push({
         dateKey: key,
@@ -615,9 +625,10 @@ const getWorkerDashboard = async (req, res) => {
     }
 
     recentEarningRows.forEach((row) => {
-      const key = new Date(row.date).toISOString().slice(0, 10);
+      const key = toLocalDateKey(row.createdAt || row.date);
       if (earningsMap[key] === undefined) return;
-      earningsMap[key] += Number(row.finalWorkerAmount || 0);
+      const payout = Number(row.finalWorkerAmount ?? row.amount ?? 0);
+      earningsMap[key] += Number.isFinite(payout) ? payout : 0;
     });
 
     dailyEarnings7d.forEach((item) => {
