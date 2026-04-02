@@ -7,6 +7,11 @@ const Complaint = require("../models/Complaint");
 const Notification = require("../models/Notification");
 const { escalateOldComplaints } = require("../utils/complaintEscalation");
 const OWNER_ROLES = ["flat_owner", "pg_owner", "hostel_owner"];
+const PENDING_PROPERTY_FILTER = {
+  $or: [{ status: "pending" }, { status: { $exists: false } }, { status: null }, { status: "" }],
+  isVerified: { $ne: true },
+};
+const PENDING_WORKER_FILTER = { verificationStatus: "pending" };
 
 const toCountMap = (entries = []) =>
   entries.reduce((acc, item) => {
@@ -18,7 +23,7 @@ const toCountMap = (entries = []) =>
 
 const getPendingProperties = async (req, res) => {
   try {
-    const properties = await Property.find({ status: "pending" })
+    const properties = await Property.find(PENDING_PROPERTY_FILTER)
       .sort({ createdAt: -1 })
       .populate("ownerId", "name email phone");
 
@@ -91,6 +96,85 @@ const rejectProperty = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to reject property.",
+      error: error.message,
+    });
+  }
+};
+
+const getPendingWorkers = async (req, res) => {
+  try {
+    const workers = await Worker.find(PENDING_WORKER_FILTER)
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email phone city");
+
+    return res.status(200).json({
+      success: true,
+      count: workers.length,
+      workers,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch pending workers.",
+      error: error.message,
+    });
+  }
+};
+
+const updateWorkerVerificationStatus = async (workerId, status) => {
+  const worker = await Worker.findById(workerId);
+  if (!worker) {
+    return null;
+  }
+
+  worker.verificationStatus = status;
+  await worker.save();
+  return worker;
+};
+
+const approveWorker = async (req, res) => {
+  try {
+    const worker = await updateWorkerVerificationStatus(req.params.id, "verified");
+    if (!worker) {
+      return res.status(404).json({
+        success: false,
+        message: "Worker not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Worker verified successfully.",
+      worker,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to verify worker.",
+      error: error.message,
+    });
+  }
+};
+
+const rejectWorker = async (req, res) => {
+  try {
+    const worker = await updateWorkerVerificationStatus(req.params.id, "rejected");
+    if (!worker) {
+      return res.status(404).json({
+        success: false,
+        message: "Worker not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Worker rejected successfully.",
+      worker,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to reject worker.",
       error: error.message,
     });
   }
@@ -329,6 +413,7 @@ const getAdminDashboard = async (req, res) => {
 
     const [
       pendingProperties,
+      pendingWorkers,
       recentBookings,
       escalatedComplaintList,
       recentNotifications,
@@ -341,10 +426,14 @@ const getAdminDashboard = async (req, res) => {
       hostelStudentsRaw,
       escalatedComplaintDetailsRaw,
     ] = await Promise.all([
-      Property.find({ status: "pending" })
+      Property.find(PENDING_PROPERTY_FILTER)
         .sort({ createdAt: -1 })
         .limit(20)
         .populate("ownerId", "name email"),
+      Worker.find(PENDING_WORKER_FILTER)
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate("userId", "name email phone city"),
       Booking.find()
         .sort({ createdAt: -1 })
         .limit(20)
@@ -600,6 +689,7 @@ const getAdminDashboard = async (req, res) => {
         paidBookingCount,
       },
       pendingProperties,
+      pendingWorkers,
       recentBookings,
       monthlyRevenue,
       topPropertiesByRevenue,
@@ -620,6 +710,9 @@ module.exports = {
   getPendingProperties,
   approveProperty,
   rejectProperty,
+  getPendingWorkers,
+  approveWorker,
+  rejectWorker,
   updatePropertyOccupancy,
   getAdminBookings,
   getAdminDashboard,

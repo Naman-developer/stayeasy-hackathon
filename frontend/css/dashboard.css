@@ -568,6 +568,7 @@ a {
 }
 
 .status-pill.approved,
+.status-pill.verified,
 .status-pill.confirmed,
 .status-pill.paid,
 .status-pill.completed,

@@ -22,6 +22,7 @@
   const briefKpiGrid = document.getElementById("briefKpiGrid");
 
   const pendingPropertiesBody = document.getElementById("pendingPropertiesBody");
+  const pendingWorkersBody = document.getElementById("pendingWorkersBody");
   const adminBookingsBody = document.getElementById("adminBookingsBody");
   const escalatedComplaintsBody = document.getElementById("escalatedComplaintsBody");
   const adminAllComplaintsBody = document.getElementById("adminAllComplaintsBody");
@@ -96,6 +97,8 @@
     `<span class="status-pill ${status}">${status.replace("_", " ")}</span>`;
 
   const renderPendingProperties = (properties) => {
+    if (!pendingPropertiesBody) return;
+
     pendingPropertiesBody.innerHTML = "";
 
     if (!properties.length) {
@@ -127,6 +130,45 @@
         </td>
       `;
       pendingPropertiesBody.appendChild(row);
+    });
+  };
+
+  const renderPendingWorkers = (workers) => {
+    if (!pendingWorkersBody) return;
+
+    pendingWorkersBody.innerHTML = "";
+
+    if (!workers.length) {
+      pendingWorkersBody.innerHTML = `
+        <tr>
+          <td colspan="8" class="small-text">No worker verification requests right now.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    workers.forEach((worker) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${worker.userId?.name || "N/A"}</td>
+        <td>${worker.userId?.email || "N/A"}</td>
+        <td>${worker.userId?.phone || "N/A"}</td>
+        <td>${worker.city || worker.userId?.city || "-"}</td>
+        <td>${worker.serviceType || "-"}</td>
+        <td>${formatPrice(worker.charges || 0)}</td>
+        <td>${statusPill(worker.verificationStatus || "pending")}</td>
+        <td>
+          <div class="inline-actions">
+            <button class="btn success" data-action="approve-worker" data-id="${worker._id}">
+              Approve
+            </button>
+            <button class="btn danger" data-action="reject-worker" data-id="${worker._id}">
+              Reject
+            </button>
+          </div>
+        </td>
+      `;
+      pendingWorkersBody.appendChild(row);
     });
   };
 
@@ -993,6 +1035,9 @@
     try {
       clearMessage();
       renderLoadingTable(pendingPropertiesBody, 6);
+      if (pendingWorkersBody) {
+        renderLoadingTable(pendingWorkersBody, 8);
+      }
       renderLoadingTable(adminBookingsBody, 6);
       renderLoadingTable(escalatedComplaintsBody, 5);
       if (recentActivityList) {
@@ -1051,6 +1096,7 @@
       kpiEscalatedComplaints.textContent = data.kpis.escalatedComplaints || 0;
 
       renderPendingProperties(data.pendingProperties || []);
+      renderPendingWorkers(data.pendingWorkers || []);
       renderBookings(data.recentBookings || []);
       renderEscalatedComplaints(data.escalatedComplaintsList || []);
       renderRevenueChart(data.monthlyRevenue || []);
@@ -1068,8 +1114,9 @@
   };
 
   const handlePropertyAction = async (event) => {
-    const action = event.target.dataset.action;
-    const propertyId = event.target.dataset.id;
+    const button = event.target.closest("button[data-action]");
+    const action = button?.dataset.action;
+    const propertyId = button?.dataset.id;
     if (!action || !propertyId) return;
 
     const endpoint =
@@ -1086,6 +1133,36 @@
 
       if (!response.ok) {
         throw new Error(data.message || "Property action failed.");
+      }
+
+      showMessage(data.message, "success");
+      await loadDashboard();
+    } catch (error) {
+      showMessage(error.message);
+    }
+  };
+
+  const handleWorkerAction = async (event) => {
+    const button = event.target.closest("button[data-action]");
+    const action = button?.dataset.action;
+    const workerId = button?.dataset.id;
+    if (!action || !workerId) return;
+    if (!["approve-worker", "reject-worker"].includes(action)) return;
+
+    const endpoint =
+      action === "approve-worker"
+        ? `${API_BASE_URL}/admin/workers/${workerId}/approve`
+        : `${API_BASE_URL}/admin/workers/${workerId}/reject`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "PUT",
+        headers: authHeaders(),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Worker action failed.");
       }
 
       showMessage(data.message, "success");
@@ -1129,7 +1206,8 @@
     }
   };
 
-  pendingPropertiesBody.addEventListener("click", handlePropertyAction);
+  pendingPropertiesBody?.addEventListener("click", handlePropertyAction);
+  pendingWorkersBody?.addEventListener("click", handleWorkerAction);
   adminOccupancyBody?.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-action='save-occupancy']");
     if (!button) return;
