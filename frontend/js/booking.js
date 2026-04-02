@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://stayeasy-hackathon-production.up.railway.app/api";
+const API_BASE_URL = localStorage.getItem("stayeasy_api_base_url") || "https://stayeasy-hackathon-production.up.railway.app/api";
 
 const token = localStorage.getItem("stayeasy_token");
 

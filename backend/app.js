@@ -28,7 +28,9 @@ app.disable("x-powered-by");
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*",
+    // Allow all web origins for hackathon/demo deployment stability.
+    // This avoids login/signup fetch failures when frontend domain changes (e.g. new Vercel URL).
+    origin: true,
   })
 );
 app.use(express.json({ limit: "10mb" }));
