@@ -3,7 +3,6 @@ const API_BASE_URL = "https://stayeasy-hackathon-production.up.railway.app/api";
 const ROLE_REDIRECT_MAP = {
   student: "./pages/student-dashboard.html",
   tenant: "./pages/tenant-dashboard.html",
-  owner: "./pages/owner-dashboard.html",
   flat_owner: "./pages/owner-dashboard.html",
   pg_owner: "./pages/owner-dashboard.html",
   hostel_owner: "./pages/hostel-dashboard.html",
@@ -86,7 +85,7 @@ const renderNavbarForAuthState = () => {
   }
 
   navActions.innerHTML = `
-    <a class="ghost-btn" href="#how-it-works">How It Works</a>
+    <a class="ghost-btn" href="./pages/search-results.html">Search Stays</a>
     <a class="ghost-btn" href="./pages/worker.html">Helpers</a>
     <span class="home-user-chip">${user.name || "User"} (${formatRole(user.role)})</span>
     <a class="solid-btn" href="${dashboardUrl}">Open Dashboard</a>
@@ -346,7 +345,7 @@ const renderFeaturedListings = (properties) => {
     }" />
         <div class="featured-body">
           <h3>${property.title}</h3>
-          <p class="featured-meta">${property.city} - ${property.propertyType.toUpperCase()}</p>
+          <p class="featured-meta">${property.city} - ${String(property.propertyType || "stay").toUpperCase()}</p>
           <p class="featured-price">${formatPrice(property.price)} / ${property.priceType}</p>
           <span class="featured-action">View Details</span>
         </div>

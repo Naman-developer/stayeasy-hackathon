@@ -10,6 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="../css/tokens.css" />
     <link rel="stylesheet" href="../css/marketplace.css" />
   </head>
   <body class="marketplace-body">
@@ -22,6 +23,16 @@
     </header>
 
     <main class="market-main">
+      <section class="content-card">
+        <h1 class="page-title">Search Results</h1>
+        <div class="flow-steps" aria-label="Search flow">
+          <span class="flow-step is-active">1. Search & Filter</span>
+          <span class="flow-step">2. View Property</span>
+          <span class="flow-step">3. Book & Pay</span>
+        </div>
+        <p class="muted-text">Use quick filters below. Results update in one clean grid.</p>
+      </section>
+
       <section class="filter-card">
         <form id="searchForm" class="filter-form">
           <div class="filter-field">
@@ -57,34 +68,32 @@
             <input
               id="preferences"
               name="preferences"
-              placeholder="wifi, ac, veg_food, privacy, campus_distance"
+              placeholder="wifi, ac, veg_food, privacy"
             />
           </div>
-          <button type="submit" class="market-btn primary">Search</button>
+          <button type="submit" class="market-btn primary">Apply Filters</button>
         </form>
       </section>
 
       <section class="content-card">
         <h2>Available Approved Listings</h2>
-        <p class="muted-text">
-          Only admin-approved properties are visible in this public search.
-        </p>
-        <div id="resultsGrid" class="results-grid" style="margin-top: 0.8rem"></div>
-        <p id="emptyState" class="empty-block" style="display: none; margin-top: 0.8rem">
+        <p class="muted-text">Only admin-approved properties are shown in public search.</p>
+        <div id="resultsGrid" class="results-grid"></div>
+        <p id="emptyState" class="empty-block" style="display: none">
           No properties found for this filter.
         </p>
       </section>
 
       <section class="content-card">
-        <div style="display: flex; justify-content: space-between; gap: 0.8rem; align-items: center; flex-wrap: wrap">
+        <div class="section-title">
           <div>
             <h2>AI Recommended For You</h2>
-            <p class="muted-text">Budget + city + preferences based ranking for students and tenants.</p>
+            <p class="muted-text">Budget + city + preferences based ranking.</p>
           </div>
           <button id="refreshAiBtn" type="button" class="market-btn ghost">Refresh AI Picks</button>
         </div>
-        <div id="aiRecommendationGrid" class="results-grid" style="margin-top: 0.8rem"></div>
-        <p id="aiRecommendationEmpty" class="empty-block" style="display: none; margin-top: 0.8rem"></p>
+        <div id="aiRecommendationGrid" class="results-grid"></div>
+        <p id="aiRecommendationEmpty" class="empty-block" style="display: none"></p>
       </section>
     </main>
 

@@ -95,7 +95,7 @@ const canRespondToComplaint = async (complaint, actor) => {
 
   if (
     complaint.propertyId &&
-    ["owner", "flat_owner", "pg_owner", "hostel_owner"].includes(actor.role)
+    ["flat_owner", "pg_owner", "hostel_owner"].includes(actor.role)
   ) {
     const property = await Property.findById(complaint.propertyId);
     if (property && String(property.ownerId) === actor.userId) return true;

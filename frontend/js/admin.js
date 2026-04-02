@@ -55,7 +55,7 @@
   };
   const formatShortId = (value) =>
     value ? String(value).slice(-6).toUpperCase() : "-";
-  const OWNER_ROLE_KEYS = ["owner", "flat_owner", "pg_owner", "hostel_owner"];
+  const OWNER_ROLE_KEYS = ["flat_owner", "pg_owner", "hostel_owner"];
 
   const toReadableLabel = (value = "") =>
     String(value)
@@ -642,7 +642,6 @@
         brief: `Roles: ${buildInlineSummary(roleCounts, [
           "admin",
           "hostel_owner",
-          "owner",
           "flat_owner",
           "pg_owner",
           "student",
@@ -872,7 +871,7 @@
 
       case "totalOwners":
         title = "All Owners Breakdown";
-        desc = "All owner accounts across owner, flat_owner, pg_owner, and hostel_owner roles.";
+        desc = "All owner accounts across flat_owner, pg_owner, and hostel_owner roles.";
         items = [
           {
             label: "Owner Accounts",

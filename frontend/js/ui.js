@@ -54,7 +54,6 @@
   const ROLE_DASHBOARD_PAGE_MAP = {
     student: "student-dashboard.html",
     tenant: "tenant-dashboard.html",
-    owner: "owner-dashboard.html",
     flat_owner: "owner-dashboard.html",
     pg_owner: "owner-dashboard.html",
     hostel_owner: "hostel-dashboard.html",
@@ -152,8 +151,8 @@
         height: 34px;
         border-radius: 10px;
         object-fit: cover;
-        border: 1px solid rgba(52, 124, 214, 0.7);
-        box-shadow: 0 8px 16px rgba(8, 30, 86, 0.34);
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
         background: #fff;
         flex: 0 0 34px;
       }
@@ -320,14 +319,14 @@
         font: inherit;
         font-weight: 700;
         color: #fff;
-        background: linear-gradient(125deg, #295ef7, #5d86ff);
-        box-shadow: 0 12px 24px rgba(29, 71, 177, 0.36);
+        background: #6366f1;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
 
       .stayeasy-chat-fab:hover {
         transform: translateY(-2px);
-        box-shadow: 0 16px 24px rgba(29, 71, 177, 0.42);
+        background: #4f46e5;
       }
 
       .stayeasy-chat-fab.hidden {
@@ -338,9 +337,9 @@
         width: min(390px, calc(100vw - 26px));
         height: min(620px, calc(100vh - 32px));
         border-radius: 16px;
-        border: 1px solid #d9e5ff;
+        border: 1px solid #e2e8f0;
         background: #fff;
-        box-shadow: 0 18px 36px rgba(22, 51, 110, 0.26);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
         display: none;
         grid-template-rows: auto auto 1fr auto auto;
         overflow: hidden;
@@ -356,8 +355,8 @@
         justify-content: space-between;
         gap: 0.5rem;
         padding: 0.72rem 0.75rem;
-        border-bottom: 1px solid #e5edff;
-        background: linear-gradient(180deg, #f8fbff, #fff);
+        border-bottom: 1px solid #e2e8f0;
+        background: #ffffff;
       }
 
       .stayeasy-chat-title {
@@ -409,9 +408,7 @@
       .stayeasy-chat-messages {
         padding: 0.72rem;
         overflow-y: auto;
-        background:
-          radial-gradient(circle at 12% 4%, rgba(145, 195, 255, 0.14), transparent 36%),
-          #ffffff;
+        background: #f8fafc;
         display: grid;
         align-content: start;
         gap: 0.55rem;
@@ -437,8 +434,8 @@
       }
 
       .stayeasy-chat-message.user .stayeasy-chat-bubble {
-        background: linear-gradient(130deg, #2f64f7, #5e87ff);
-        border-color: transparent;
+        background: #6366f1;
+        border-color: #6366f1;
         color: #fff;
       }
 
@@ -521,7 +518,7 @@
         border: none;
         border-radius: 10px;
         padding: 0.55rem 0.75rem;
-        background: linear-gradient(120deg, #295ef7, #5f88ff);
+        background: #6366f1;
         color: #fff;
         cursor: pointer;
         font: inherit;

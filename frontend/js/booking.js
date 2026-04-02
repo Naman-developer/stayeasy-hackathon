@@ -306,14 +306,14 @@ const renderProperty = (property) => {
       decoding="async"
       src="${property.images?.[0] || fallbackImage}"
       alt="${property.title}"
-      style="width:100%; height:220px; object-fit:cover; border-radius:12px;"
+      class="booking-property-image"
     />
-    <h3 style="margin:0.7rem 0 0.2rem">${property.title}</h3>
-    <p class="muted-text">${property.city} - ${property.propertyType.toUpperCase()}</p>
-    <p style="font-weight:700; margin-top:0.45rem">${formatPrice(property.price)} / ${
+    <h3 class="booking-property-title">${property.title}</h3>
+    <p class="muted-text">${property.city} - ${String(property.propertyType || "stay").toUpperCase()}</p>
+    <p class="booking-property-price">${formatPrice(property.price)} / ${
     property.priceType
   }</p>
-    <p class="muted-text" style="margin-top:0.45rem">${property.address}</p>
+    <p class="muted-text booking-property-address">${property.address}</p>
   `;
 };
 

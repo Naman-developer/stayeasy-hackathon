@@ -28,7 +28,7 @@ router.get(
 router.get(
   "/owner",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   getOwnerReviewInbox
 );
 router.get("/admin", verifyToken, authorizeRoles("admin"), getAdminReviewInbox);

@@ -22,11 +22,10 @@ dotenv.config({ path: path.join(__dirname, ".env"), override: true });
 
 const DEMO_PASSWORD = "StayEasy@123";
 const TOTAL_RECORDS = 25;
-const OWNER_ROLES = ["owner", "flat_owner", "pg_owner", "hostel_owner"];
+const OWNER_ROLES = ["flat_owner", "pg_owner", "hostel_owner"];
 const CUSTOMER_ROLES = ["student", "tenant"];
 
 const ROLE_PLAN = [
-  { role: "owner", count: 3 },
   { role: "flat_owner", count: 3 },
   { role: "pg_owner", count: 3 },
   { role: "hostel_owner", count: 3 },

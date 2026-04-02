@@ -19,38 +19,38 @@ router.get("/suggestions", getPropertySuggestions);
 router.post(
   "/price-suggestion",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   getPriceSuggestion
 );
 router.get(
   "/my-listings",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   getMyListings
 );
 router.get("/:id", getPropertyById);
 router.post(
   "/",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   createProperty
 );
 router.put(
   "/:id",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   updateProperty
 );
 router.post(
   "/:id/boost",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   boostProperty
 );
 router.delete(
   "/:id",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   deleteProperty
 );
 

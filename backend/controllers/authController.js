@@ -7,6 +7,7 @@ const {
   isStudentCode,
   normalizeStudentCode,
 } = require("../utils/studentCode");
+const DISABLED_ROLES = new Set(["owner"]);
 
 const cleanUser = (userDoc) => {
   const user = userDoc.toObject();
@@ -62,6 +63,12 @@ const signup = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid role selected.",
+      });
+    }
+    if (DISABLED_ROLES.has(role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Selected role is no longer supported.",
       });
     }
 
@@ -145,6 +152,12 @@ const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials.",
+      });
+    }
+    if (DISABLED_ROLES.has(user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "This role is no longer supported.",
       });
     }
 
@@ -293,6 +306,12 @@ const otpLogin = async (req, res) => {
         message: "User not found.",
       });
     }
+    if (DISABLED_ROLES.has(user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "This role is no longer supported.",
+      });
+    }
 
     user.lastLoginAt = new Date();
     await user.save({ validateBeforeSave: false });
@@ -320,6 +339,12 @@ const getMe = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User not found.",
+      });
+    }
+    if (DISABLED_ROLES.has(user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "This role is no longer supported.",
       });
     }
 

@@ -3,7 +3,6 @@ const API_BASE_URL = "https://stayeasy-hackathon-production.up.railway.app/api";
 const ROLE_REDIRECT_MAP = {
   student: "./student-dashboard.html",
   tenant: "./tenant-dashboard.html",
-  owner: "./owner-dashboard.html",
   flat_owner: "./owner-dashboard.html",
   pg_owner: "./owner-dashboard.html",
   hostel_owner: "./hostel-dashboard.html",
@@ -15,7 +14,6 @@ const ROLE_REDIRECT_MAP = {
 const ROLE_PORTAL_LINK_MAP = {
   student: { label: "Student Portal", href: "./student-dashboard.html", role: "student" },
   tenant: { label: "Tenant Portal", href: "./tenant-dashboard.html", role: "tenant" },
-  owner: { label: "Owner Portal", href: "./owner-dashboard.html", role: "owner" },
   flat_owner: { label: "Owner Portal", href: "./owner-dashboard.html", role: "flat_owner" },
   pg_owner: { label: "Owner Portal", href: "./owner-dashboard.html", role: "pg_owner" },
   hostel_owner: { label: "Hostel Portal", href: "./hostel-dashboard.html", role: "hostel_owner" },
@@ -42,7 +40,6 @@ const SIDEBAR_UTILITY_LINKS = [
 const ROLE_ACTION_COPY_MAP = {
   student: "Safety Center",
   tenant: "Book Property",
-  owner: "Add Property",
   flat_owner: "Add Property",
   pg_owner: "Add Property",
   hostel_owner: "Send Broadcast",

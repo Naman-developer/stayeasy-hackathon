@@ -10,6 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="../css/tokens.css" />
     <link rel="stylesheet" href="../css/marketplace.css" />
   </head>
   <body class="marketplace-body">
@@ -22,12 +23,13 @@
     </header>
 
     <main class="market-main">
+      <section class="content-card">
+        <h1 class="page-title">Helper Marketplace</h1>
+        <p class="muted-text">Book trusted workers with clean pricing and instant confirmation flow.</p>
+      </section>
+
       <section class="filter-card">
-        <h2>Find Trusted Helpers</h2>
-        <p class="muted-text">
-          Search by city and service type. Platform commission is auto-applied.
-        </p>
-        <form id="workerSearchForm" class="filter-form" style="margin-top: 0.7rem">
+        <form id="workerSearchForm" class="filter-form">
           <div class="filter-field">
             <label for="workerCity">City</label>
             <input id="workerCity" placeholder="Delhi" />
@@ -50,18 +52,18 @@
 
       <section class="booking-grid">
         <article class="content-card">
-          <h3>Available Worker Profiles</h3>
-          <div id="workerCardsGrid" class="results-grid" style="margin-top: 0.8rem"></div>
-          <p id="workerEmptyState" class="muted-text" style="display: none; margin-top: 0.8rem">
+          <h2>Available Worker Profiles</h2>
+          <div id="workerCardsGrid" class="results-grid"></div>
+          <p id="workerEmptyState" class="muted-text" style="display: none">
             No workers found for selected filters.
           </p>
         </article>
 
         <article class="content-card">
-          <h3>Book Selected Worker</h3>
+          <h2>Book Selected Worker</h2>
           <p class="muted-text">Choose a worker from the left and submit details.</p>
           <div id="workerBookingMessage" class="message-box"></div>
-          <form id="workerBookingForm" style="margin-top: 0.7rem">
+          <form id="workerBookingForm" class="form-stack">
             <div class="filter-field">
               <label for="selectedWorkerName">Selected Worker</label>
               <input id="selectedWorkerName" readonly placeholder="Select a worker card first" />

@@ -86,7 +86,7 @@ const updateUrlWithFilters = ({
 
 const renderSkeleton = () => {
   resultsGrid.innerHTML = `
-    <div class="skeleton-grid" style="grid-column: 1 / -1; width: 100%;">
+    <div class="skeleton-grid full-grid-width">
       ${Array.from({ length: 6 })
         .map(
           () => `
@@ -126,14 +126,14 @@ const renderProperties = (properties) => {
     }" />
       <div class="card-body">
         <h3>${property.title}</h3>
-        <p class="property-meta">${property.city} - ${property.propertyType.toUpperCase()}</p>
+        <p class="property-meta">${property.city} - ${String(property.propertyType || "stay").toUpperCase()}</p>
         <p class="property-price">${formatPrice(property.price)} / ${property.priceType}</p>
         <p>
           <span class="badge ${property.isVerified ? "verified" : "pending"}">
             ${property.isVerified ? "Verified" : "Approved"}
           </span>
         </p>
-        <a class="market-btn primary" style="display:inline-block; margin-top:0.6rem" href="./property-details.html?id=${
+        <a class="market-btn primary property-action-btn" href="./property-details.html?id=${
           property._id
         }">
           View Details
@@ -243,11 +243,11 @@ const renderRecommendationCards = (recommendations) => {
     }" />
       <div class="card-body">
         <h3>${property.title}</h3>
-        <p class="property-meta">${property.city} - ${property.propertyType.toUpperCase()}</p>
+        <p class="property-meta">${property.city} - ${String(property.propertyType || "stay").toUpperCase()}</p>
         <p class="property-price">${formatPrice(property.price)} / ${property.priceType}</p>
         <p class="muted-text"><strong>AI Score:</strong> ${property.aiScore}</p>
         <p class="muted-text">${property.aiReason || "Matched your search preference."}</p>
-        <a class="market-btn primary" style="display:inline-block; margin-top:0.6rem" href="./property-details.html?id=${
+        <a class="market-btn primary property-action-btn" href="./property-details.html?id=${
           property._id
         }">
           View Details
@@ -281,7 +281,7 @@ const fetchRecommendations = async () => {
   if (query.preferences) params.set("preferences", query.preferences);
 
   aiRecommendationGrid.innerHTML = `
-    <div class="empty-block" style="grid-column: 1 / -1">Loading AI recommendations...</div>
+    <div class="empty-block full-grid-width">Loading AI recommendations...</div>
   `;
 
   try {

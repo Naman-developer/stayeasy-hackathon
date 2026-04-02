@@ -20,6 +20,12 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.role === "owner") {
+      return res.status(403).json({
+        success: false,
+        message: "This role is no longer supported.",
+      });
+    }
     req.user = {
       userId: decoded.userId,
       role: decoded.role,

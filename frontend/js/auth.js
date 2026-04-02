@@ -3,7 +3,6 @@ const API_BASE_URL = "https://stayeasy-hackathon-production.up.railway.app/api";
 const ROLE_REDIRECT_MAP = {
   student: "./student-dashboard.html",
   tenant: "./tenant-dashboard.html",
-  owner: "./owner-dashboard.html",
   flat_owner: "./owner-dashboard.html",
   pg_owner: "./owner-dashboard.html",
   hostel_owner: "./hostel-dashboard.html",
@@ -61,12 +60,6 @@ const redirectIfAlreadyLoggedIn = () => {
 };
 
 const roleFieldTemplates = {
-  owner: `
-    <label>
-      Property Basic Info
-      <textarea name="propertyInfo" placeholder="Type of property and rough capacity"></textarea>
-    </label>
-  `,
   flat_owner: `
     <label>
       Flat Listing Info

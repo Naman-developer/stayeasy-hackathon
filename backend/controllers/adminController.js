@@ -6,7 +6,7 @@ const HostelStudent = require("../models/HostelStudent");
 const Complaint = require("../models/Complaint");
 const Notification = require("../models/Notification");
 const { escalateOldComplaints } = require("../utils/complaintEscalation");
-const OWNER_ROLES = ["owner", "flat_owner", "pg_owner", "hostel_owner"];
+const OWNER_ROLES = ["flat_owner", "pg_owner", "hostel_owner"];
 
 const toCountMap = (entries = []) =>
   entries.reduce((acc, item) => {

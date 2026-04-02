@@ -1,142 +1,19 @@
-@media (max-width: 1024px) {
-  .hero {
-    grid-template-columns: 1fr;
+@media (max-width: 900px) {
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .grid-3,
-  .badge-grid,
-  .testimonial-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .service-preview {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
+  .hero-cta .solid-btn,
+  .hero-cta .ghost-btn {
+    width: 100%;
+    text-align: center;
   }
 }
 
 @media (max-width: 760px) {
-  .navbar {
-    top: 0.45rem;
-    padding: 0.62rem 0.68rem;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.52rem;
-  }
-
-  .brand {
-    align-self: flex-start;
-    font-size: 0.95rem;
-  }
-
-  .nav-actions {
+  .home-sidebar {
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.42rem;
-    justify-content: initial;
-    align-items: stretch;
-  }
-
-  .nav-actions .ghost-btn,
-  .nav-actions .solid-btn {
-    width: 100%;
-    min-height: 38px;
-    padding: 0.52rem 0.62rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    line-height: 1.2;
-    text-align: center;
-  }
-
-  .nav-actions .solid-btn {
-    grid-column: 1 / -1;
-    box-shadow: 0 3px 0 #2f86d8, 0 8px 14px rgba(80, 158, 214, 0.24);
-  }
-
-  .home-user-chip {
-    grid-column: 1 / -1;
-    width: 100%;
-    padding: 0.42rem 0.62rem;
-    border-radius: 12px;
-    font-size: 0.74rem;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .home-logout-btn {
-    padding-inline: 0.62rem;
-  }
-
-  .hero {
-    margin-top: 1.25rem;
-  }
-
-  .hero-cta {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .location-row {
-    grid-template-columns: 1fr;
-  }
-
-  .search-chip-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .carousel-btn {
-    display: none;
-  }
-
-  .grid-3,
-  .badge-grid,
-  .testimonial-grid,
-  .service-preview,
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .cta-band {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    top: 0.34rem;
-    padding: 0.55rem;
-  }
-
-  .nav-actions {
-    grid-template-columns: 1fr;
-    gap: 0.34rem;
-  }
-
-  .nav-actions .solid-btn,
-  .home-user-chip {
-    grid-column: auto;
-  }
-
-  .nav-actions .ghost-btn,
-  .nav-actions .solid-btn,
-  .home-user-chip {
-    min-height: 34px;
-    font-size: 0.76rem;
-  }
-
-  .section,
-  .search-card {
-    padding: 0.85rem;
-  }
-
-  .brand {
-    font-size: 1rem;
+    max-width: 320px;
   }
 }

@@ -15,13 +15,13 @@ router.get("/my-bookings", verifyToken, getMyBookings);
 router.get(
   "/owner",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   getOwnerBookings
 );
 router.get(
   "/owner/tenant-risk/:tenantId",
   verifyToken,
-  authorizeRoles("owner", "flat_owner", "pg_owner", "hostel_owner"),
+  authorizeRoles("flat_owner", "pg_owner", "hostel_owner"),
   getTenantRiskScore
 );
 router.put("/:id/cancel", verifyToken, cancelBooking);

@@ -59,9 +59,9 @@
     }
 
     detailsCard.innerHTML = `
-      <div class="skeleton-grid" style="grid-template-columns: 1fr;">
+      <div class="skeleton-grid single-column">
         <article class="skeleton-card">
-          <div class="skeleton-media" style="height: 260px"></div>
+          <div class="skeleton-media skeleton-media-tall"></div>
           <div class="skeleton-body">
             <div class="skeleton-line"></div>
             <div class="skeleton-line"></div>
@@ -102,16 +102,16 @@
             </div>
           </article>
 
-          <article>
+          <article class="property-side">
             <h2>${property.title}</h2>
-            <p class="muted-text">${property.city} - ${property.propertyType.toUpperCase()}</p>
-            <p style="font-size:1.2rem; font-weight:700; margin:0.65rem 0">
+            <p class="muted-text">${property.city} - ${String(property.propertyType || "stay").toUpperCase()}</p>
+            <p class="property-detail-price">
               ${formatPrice(property.price)} / ${property.priceType}
             </p>
             <p class="muted-text">
               Occupancy: ${property.occupancy} - Gender: ${property.genderPreference}
             </p>
-            <p class="muted-text" style="margin-top:0.5rem">Address: ${property.address}</p>
+            <p class="muted-text property-address">Address: ${property.address}</p>
 
             <div class="amenities-list">
               ${(property.amenities || [])
@@ -120,10 +120,10 @@
             </div>
 
             <a class="market-btn primary" href="./booking.html?propertyId=${property._id}">
-              Book Now
+              Continue to Booking
             </a>
 
-            <div style="margin-top:1rem">
+            <div class="property-owner-box">
               <h4>Owner Info</h4>
               <p class="muted-text">${property.ownerId?.name || "Owner"} - ${
         property.ownerId?.phone || "N/A"
@@ -132,12 +132,12 @@
           </article>
         </div>
 
-        <section style="margin-top:1rem">
+        <section class="property-section">
           <h3>Description</h3>
-          <p class="muted-text" style="margin-top:0.4rem">${property.description}</p>
+          <p class="muted-text">${property.description}</p>
         </section>
 
-        <section style="margin-top:1rem">
+        <section class="property-section">
           <h3>Reviews</h3>
           <p class="muted-text">Rating: ${property.rating}/5 from ${property.totalReviews} reviews</p>
           <article class="review-card">

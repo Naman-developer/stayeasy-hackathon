@@ -3,7 +3,7 @@ const User = require("../models/User");
 const { createBulkNotifications, createNotification } = require("../utils/notify");
 
 const REVIEWER_ROLES = ["student", "tenant", "parent"];
-const OWNER_ADMIN_ROLES = ["owner", "flat_owner", "pg_owner", "hostel_owner", "admin"];
+const OWNER_ADMIN_ROLES = ["flat_owner", "pg_owner", "hostel_owner", "admin"];
 
 const parseRating = (value) => {
   const parsed = Number(value);
