@@ -1,6 +1,13 @@
 (() => {
   const API_BASE_URL = localStorage.getItem("stayeasy_api_base_url") || "https://stayeasy-hackathon-production.up.railway.app/api";
   const token = localStorage.getItem("stayeasy_token");
+  const user = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("stayeasy_user") || "{}");
+    } catch (error) {
+      return {};
+    }
+  })();
 
   const authHeaders = () => ({
     "Content-Type": "application/json",
@@ -48,8 +55,10 @@
   const workerTypeInput = document.getElementById("workerType");
   const workerDateInput = document.getElementById("workerDate");
   const workerTimeInput = document.getElementById("workerTime");
+  const marketWorkerBookingsBody = document.getElementById("marketWorkerBookingsBody");
 
   let selectedWorker = null;
+  let activeMarketRatingBookingId = null;
 
   const showWorkerBookingMessage = (text, type = "error") => {
     if (!workerBookingMessage) return;
@@ -175,6 +184,162 @@
       selectedWorkerNameInput.value = selectedWorker.userId?.name || "";
       workerServiceTypeInput.value = selectedWorker.serviceType || "";
       workerAmountInput.value = selectedWorker.charges || "";
+      await loadMarketWorkerBookings();
+    } catch (error) {
+      showWorkerBookingMessage(error.message);
+    }
+  };
+
+  const formatDate = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("en-IN");
+  };
+
+  const formatDateTime = (value, time = "") => {
+    const dateLabel = formatDate(value);
+    return time ? `${dateLabel} ${time}` : dateLabel;
+  };
+
+  const renderMarketWorkerBookings = (bookings = [], mode = "customer") => {
+    if (!marketWorkerBookingsBody) return;
+
+    marketWorkerBookingsBody.innerHTML = "";
+    if (!bookings.length) {
+      marketWorkerBookingsBody.innerHTML =
+        "<tr><td colspan='9' class='muted-text'>No helper bookings found.</td></tr>";
+      return;
+    }
+
+    bookings.forEach((booking) => {
+      const bookingId = String(booking._id || "");
+      const bookingCode = bookingId ? bookingId.slice(-6).toUpperCase() : "N/A";
+      const workerName = booking.workerId?.userId?.name || "Worker";
+      const canRate =
+        mode !== "worker" &&
+        booking.status === "completed" &&
+        booking.paymentStatus === "paid" &&
+        !booking.customerRating;
+      const showInlineRating = canRate && activeMarketRatingBookingId === bookingId;
+
+      const actions = [];
+      if (canRate) {
+        actions.push(
+          `<button class="market-btn ghost" type="button" data-action="toggle-market-rate" data-id="${bookingId}">${
+            showInlineRating ? "Close" : "Rate"
+          }</button>`
+        );
+      }
+
+      const ratingLabel = booking.customerRating
+        ? `<span class="feedback-pill">${booking.customerRating}/5</span>`
+        : "<span class='muted-text'>Not rated</span>";
+      const defaultStars = 5;
+      const inlineRatingForm = showInlineRating
+        ? `
+          <div class="worker-rating-panel" data-selected-rating="${defaultStars}">
+            <div class="worker-rating-stars">
+              ${[1, 2, 3, 4, 5]
+                .map(
+                  (star) => `
+                    <button
+                      class="worker-star ${star <= defaultStars ? "active" : ""}"
+                      type="button"
+                      data-action="pick-market-rating"
+                      data-id="${bookingId}"
+                      data-rating="${star}"
+                      aria-label="${star} star"
+                    >
+                      ${star <= defaultStars ? "&#9733;" : "&#9734;"}
+                    </button>
+                  `
+                )
+                .join("")}
+            </div>
+            <textarea
+              class="worker-rating-review"
+              maxlength="500"
+              placeholder="Optional review (max 500 chars)"
+            ></textarea>
+            <div class="inline-actions">
+              <button class="market-btn primary" type="button" data-action="submit-market-rating" data-id="${bookingId}">Submit</button>
+              <button class="market-btn ghost" type="button" data-action="close-market-rate" data-id="${bookingId}">Cancel</button>
+            </div>
+          </div>
+        `
+        : "";
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${bookingCode}</td>
+        <td>${workerName}</td>
+        <td>${booking.serviceType || "-"}</td>
+        <td>${formatDateTime(booking.date, booking.time)}</td>
+        <td>${formatPrice(booking.amount)}</td>
+        <td>${createStatusPill(booking.status)}</td>
+        <td>${createStatusPill(booking.paymentStatus)}</td>
+        <td>${ratingLabel}</td>
+        <td><div class="inline-actions">${actions.join("") || "-"}</div>${inlineRatingForm}</td>
+      `;
+      marketWorkerBookingsBody.appendChild(row);
+    });
+  };
+
+  const loadMarketWorkerBookings = async () => {
+    if (!marketWorkerBookingsBody) return;
+
+    if (!token) {
+      marketWorkerBookingsBody.innerHTML =
+        "<tr><td colspan='9' class='muted-text'>Login to view helper bookings.</td></tr>";
+      return;
+    }
+
+    if (user?.role === "admin") {
+      marketWorkerBookingsBody.innerHTML =
+        "<tr><td colspan='9' class='muted-text'>Admin portal cannot rate helper bookings.</td></tr>";
+      return;
+    }
+
+    marketWorkerBookingsBody.innerHTML =
+      "<tr><td colspan='9' class='muted-text'>Loading helper bookings...</td></tr>";
+    try {
+      const response = await fetch(`${API_BASE_URL}/workers/my-bookings`, {
+        headers: authHeaders(),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to load helper bookings.");
+      }
+      renderMarketWorkerBookings(data.bookings || [], data.mode || "customer");
+    } catch (error) {
+      marketWorkerBookingsBody.innerHTML = `<tr><td colspan='9' class='muted-text'>${error.message}</td></tr>`;
+    }
+  };
+
+  const submitMarketWorkerRating = async (bookingId, rating, review = "") => {
+    if (!bookingId) return;
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      showWorkerBookingMessage("Please select a valid rating between 1 and 5.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/workers/bookings/${bookingId}/rate`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          rating,
+          review: String(review || "").trim().slice(0, 500),
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to submit rating.");
+      }
+      showWorkerBookingMessage(data.message || "Rating submitted.", "success");
+      activeMarketRatingBookingId = null;
+      await loadMarketWorkerBookings();
+      await fetchWorkers();
     } catch (error) {
       showWorkerBookingMessage(error.message);
     }
@@ -184,6 +349,55 @@
     workerSearchForm.addEventListener("submit", handleWorkerSearch);
     workerBookingForm.addEventListener("submit", handleWorkerBooking);
     fetchWorkers();
+    loadMarketWorkerBookings();
+  }
+
+  if (marketWorkerBookingsBody) {
+    marketWorkerBookingsBody.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const action = button.dataset.action;
+      const bookingId = button.dataset.id;
+      if (!bookingId) return;
+
+      if (action === "toggle-market-rate") {
+        activeMarketRatingBookingId =
+          activeMarketRatingBookingId === bookingId ? null : bookingId;
+        loadMarketWorkerBookings();
+        return;
+      }
+
+      if (action === "close-market-rate") {
+        activeMarketRatingBookingId = null;
+        loadMarketWorkerBookings();
+        return;
+      }
+
+      if (action === "pick-market-rating") {
+        const selectedRating = Number(button.dataset.rating || 0);
+        const panel = button.closest(".worker-rating-panel");
+        if (!panel) return;
+        panel.dataset.selectedRating = String(selectedRating);
+        const starButtons = panel.querySelectorAll(".worker-star");
+        starButtons.forEach((starButton) => {
+          const starValue = Number(starButton.dataset.rating || 0);
+          const active = starValue <= selectedRating;
+          starButton.classList.toggle("active", active);
+          starButton.innerHTML = active ? "&#9733;" : "&#9734;";
+        });
+        return;
+      }
+
+      if (action === "submit-market-rating") {
+        const panel = button.closest(".worker-rating-panel");
+        if (!panel) return;
+        const selectedRating = Number(panel.dataset.selectedRating || 0);
+        const reviewInput = panel.querySelector(".worker-rating-review");
+        const review = reviewInput ? reviewInput.value : "";
+        submitMarketWorkerRating(bookingId, selectedRating, review);
+      }
+    });
   }
 
   // Worker dashboard page context

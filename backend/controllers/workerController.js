@@ -510,6 +510,13 @@ const completeWorkerBooking = async (req, res) => {
 
 const rateWorkerBooking = async (req, res) => {
   try {
+    if (req.user.role === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Admins cannot submit worker ratings.",
+      });
+    }
+
     const booking = await WorkerBooking.findById(req.params.id);
     if (!booking) {
       return res.status(404).json({
