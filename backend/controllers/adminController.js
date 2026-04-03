@@ -2,9 +2,18 @@ const Booking = require("../models/Booking");
 const Property = require("../models/Property");
 const User = require("../models/User");
 const Worker = require("../models/Worker");
+const WorkerBooking = require("../models/WorkerBooking");
 const HostelStudent = require("../models/HostelStudent");
+const HostelMess = require("../models/HostelMess");
+const HostelBroadcast = require("../models/HostelBroadcast");
+const MessFeedback = require("../models/MessFeedback");
+const MoveInChecklist = require("../models/MoveInChecklist");
+const OutpassRequest = require("../models/OutpassRequest");
+const Payment = require("../models/Payment");
 const Complaint = require("../models/Complaint");
 const Notification = require("../models/Notification");
+const Review = require("../models/Review");
+const SosAlert = require("../models/SosAlert");
 const { escalateOldComplaints } = require("../utils/complaintEscalation");
 const OWNER_ROLES = ["flat_owner", "pg_owner", "hostel_owner"];
 const PENDING_PROPERTY_FILTER = {
@@ -20,6 +29,51 @@ const toCountMap = (entries = []) =>
     }
     return acc;
   }, {});
+
+const toIdSet = (values = []) => [...new Set(values.map((item) => String(item)))];
+
+const deletePropertyWithCascade = async (propertyId) => {
+  const property = await Property.findById(propertyId).select("_id title");
+  if (!property) {
+    return null;
+  }
+
+  const bookingIds = await Booking.find({ propertyId: property._id }).distinct("_id");
+
+  const [
+    bookingDeleteResult,
+    paymentDeleteResult,
+    complaintDeleteResult,
+    hostelStudentDeleteResult,
+    hostelMessDeleteResult,
+    messFeedbackDeleteResult,
+    propertyDeleteResult,
+  ] = await Promise.all([
+    Booking.deleteMany({ propertyId: property._id }),
+    bookingIds.length
+      ? Payment.deleteMany({ bookingId: { $in: bookingIds } })
+      : Promise.resolve({ deletedCount: 0 }),
+    Complaint.deleteMany({ propertyId: property._id }),
+    HostelStudent.deleteMany({ propertyId: property._id }),
+    HostelMess.deleteMany({ propertyId: property._id }),
+    MessFeedback.deleteMany({ propertyId: property._id }),
+    Property.deleteOne({ _id: property._id }),
+  ]);
+
+  return {
+    propertyId: property._id,
+    propertyTitle: property.title,
+    deleted: {
+      properties: propertyDeleteResult.deletedCount || 0,
+      bookings: bookingDeleteResult.deletedCount || 0,
+      payments: paymentDeleteResult.deletedCount || 0,
+      complaints: complaintDeleteResult.deletedCount || 0,
+      hostelStudents: hostelStudentDeleteResult.deletedCount || 0,
+      hostelMess: hostelMessDeleteResult.deletedCount || 0,
+      messFeedback: messFeedbackDeleteResult.deletedCount || 0,
+    },
+  };
+};
 
 const getPendingProperties = async (req, res) => {
   try {
@@ -175,6 +229,244 @@ const rejectWorker = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to reject worker.",
+      error: error.message,
+    });
+  }
+};
+
+const removeUserProfile = async (req, res) => {
+  try {
+    const targetUser = await User.findById(req.params.id).select(
+      "_id role email studentCode name"
+    );
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (String(targetUser._id) === String(req.user.userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot delete your own admin account.",
+      });
+    }
+
+    if (targetUser.role === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Admin profiles are protected from deletion.",
+      });
+    }
+
+    const [ownedPropertyIds, userBookingIds, workerDoc] = await Promise.all([
+      Property.find({ ownerId: targetUser._id }).distinct("_id"),
+      Booking.find({
+        $or: [{ userId: targetUser._id }, { ownerId: targetUser._id }],
+      }).distinct("_id"),
+      Worker.findOne({ userId: targetUser._id }).select("_id"),
+    ]);
+
+    const ownedPropertyBookingIds = ownedPropertyIds.length
+      ? await Booking.find({ propertyId: { $in: ownedPropertyIds } }).distinct("_id")
+      : [];
+
+    const bookingIds = toIdSet([...userBookingIds, ...ownedPropertyBookingIds]);
+    const workerId = workerDoc?._id || null;
+
+    const propertyDeleteSummaries = [];
+    for (const propertyId of ownedPropertyIds) {
+      const summary = await deletePropertyWithCascade(propertyId);
+      if (summary) {
+        propertyDeleteSummaries.push(summary);
+      }
+    }
+
+    const refsToUnlink = [
+      String(targetUser.email || "").trim().toLowerCase(),
+      String(targetUser.studentCode || "").trim().toUpperCase(),
+      String(targetUser.name || "").trim(),
+    ].filter(Boolean);
+
+    const [
+      userDeleteResult,
+      paymentDeleteResult,
+      bookingDeleteResult,
+      complaintDeleteResult,
+      notificationDeleteResult,
+      sosDeleteResult,
+      reviewDeleteResult,
+      workerDeleteResult,
+      workerBookingDeleteResult,
+      hostelStudentDeleteResult,
+      hostelMessDeleteResult,
+      outpassDeleteResult,
+      messFeedbackDeleteResult,
+      hostelBroadcastDeleteResult,
+      moveInChecklistDeleteResult,
+      parentUnlinkResult,
+    ] = await Promise.all([
+      User.deleteOne({ _id: targetUser._id }),
+      bookingIds.length
+        ? Payment.deleteMany({ bookingId: { $in: bookingIds } })
+        : Promise.resolve({ deletedCount: 0 }),
+      Booking.deleteMany({
+        $or: [{ userId: targetUser._id }, { ownerId: targetUser._id }],
+      }),
+      Complaint.deleteMany({
+        $or: [{ userId: targetUser._id }, { targetUserId: targetUser._id }],
+      }),
+      Notification.deleteMany({ userId: targetUser._id }),
+      SosAlert.deleteMany({ userId: targetUser._id }),
+      Review.deleteMany({ reviewerId: targetUser._id }),
+      Worker.deleteMany({ userId: targetUser._id }),
+      WorkerBooking.deleteMany({
+        $or: [
+          { customerId: targetUser._id },
+          ...(workerId ? [{ workerId }] : []),
+        ],
+      }),
+      HostelStudent.deleteMany({
+        $or: [{ studentId: targetUser._id }, { hostelOwnerId: targetUser._id }],
+      }),
+      HostelMess.deleteMany({ hostelOwnerId: targetUser._id }),
+      OutpassRequest.deleteMany({
+        $or: [{ studentId: targetUser._id }, { hostelOwnerId: targetUser._id }],
+      }),
+      MessFeedback.deleteMany({
+        $or: [{ studentId: targetUser._id }, { hostelOwnerId: targetUser._id }],
+      }),
+      HostelBroadcast.deleteMany({ hostelOwnerId: targetUser._id }),
+      MoveInChecklist.deleteMany({ studentId: targetUser._id }),
+      refsToUnlink.length
+        ? User.updateMany(
+            {
+              role: "parent",
+              "roleDetails.childReference": { $in: refsToUnlink },
+            },
+            {
+              $set: {
+                "roleDetails.childReference": "",
+              },
+            }
+          )
+        : Promise.resolve({ modifiedCount: 0 }),
+    ]);
+
+    const propertyCascadeTotals = propertyDeleteSummaries.reduce(
+      (acc, item) => {
+        acc.properties += item.deleted.properties || 0;
+        acc.bookings += item.deleted.bookings || 0;
+        acc.payments += item.deleted.payments || 0;
+        acc.complaints += item.deleted.complaints || 0;
+        acc.hostelStudents += item.deleted.hostelStudents || 0;
+        acc.hostelMess += item.deleted.hostelMess || 0;
+        acc.messFeedback += item.deleted.messFeedback || 0;
+        return acc;
+      },
+      {
+        properties: 0,
+        bookings: 0,
+        payments: 0,
+        complaints: 0,
+        hostelStudents: 0,
+        hostelMess: 0,
+        messFeedback: 0,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Profile "${targetUser.name}" removed successfully.`,
+      deleted: {
+        users: userDeleteResult.deletedCount || 0,
+        properties: propertyCascadeTotals.properties,
+        bookings:
+          (bookingDeleteResult.deletedCount || 0) + propertyCascadeTotals.bookings,
+        payments:
+          (paymentDeleteResult.deletedCount || 0) + propertyCascadeTotals.payments,
+        complaints:
+          (complaintDeleteResult.deletedCount || 0) + propertyCascadeTotals.complaints,
+        notifications: notificationDeleteResult.deletedCount || 0,
+        sosAlerts: sosDeleteResult.deletedCount || 0,
+        reviews: reviewDeleteResult.deletedCount || 0,
+        workers: workerDeleteResult.deletedCount || 0,
+        workerBookings: workerBookingDeleteResult.deletedCount || 0,
+        hostelStudents:
+          (hostelStudentDeleteResult.deletedCount || 0) +
+          propertyCascadeTotals.hostelStudents,
+        hostelMess:
+          (hostelMessDeleteResult.deletedCount || 0) + propertyCascadeTotals.hostelMess,
+        outpassRequests: outpassDeleteResult.deletedCount || 0,
+        messFeedback:
+          (messFeedbackDeleteResult.deletedCount || 0) +
+          propertyCascadeTotals.messFeedback,
+        hostelBroadcasts: hostelBroadcastDeleteResult.deletedCount || 0,
+        moveInChecklists: moveInChecklistDeleteResult.deletedCount || 0,
+        parentLinksUnlinked: parentUnlinkResult.modifiedCount || 0,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove user profile.",
+      error: error.message,
+    });
+  }
+};
+
+const removeProperty = async (req, res) => {
+  try {
+    const summary = await deletePropertyWithCascade(req.params.id);
+    if (!summary) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Property "${summary.propertyTitle}" removed successfully.`,
+      deleted: summary.deleted,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove property.",
+      error: error.message,
+    });
+  }
+};
+
+const removeWorker = async (req, res) => {
+  try {
+    const worker = await Worker.findById(req.params.id).populate("userId", "name");
+    if (!worker) {
+      return res.status(404).json({
+        success: false,
+        message: "Worker not found.",
+      });
+    }
+
+    const [workerBookingDeleteResult, workerDeleteResult] = await Promise.all([
+      WorkerBooking.deleteMany({ workerId: worker._id }),
+      Worker.deleteOne({ _id: worker._id }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: `Worker "${worker.userId?.name || "profile"}" removed successfully.`,
+      deleted: {
+        workers: workerDeleteResult.deletedCount || 0,
+        workerBookings: workerBookingDeleteResult.deletedCount || 0,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove worker.",
       error: error.message,
     });
   }
@@ -713,6 +1005,9 @@ module.exports = {
   getPendingWorkers,
   approveWorker,
   rejectWorker,
+  removeUserProfile,
+  removeProperty,
+  removeWorker,
   updatePropertyOccupancy,
   getAdminBookings,
   getAdminDashboard,

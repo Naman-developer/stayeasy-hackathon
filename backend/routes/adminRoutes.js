@@ -6,6 +6,9 @@ const {
   getPendingWorkers,
   approveWorker,
   rejectWorker,
+  removeUserProfile,
+  removeProperty,
+  removeWorker,
   updatePropertyOccupancy,
   getAdminBookings,
   getAdminDashboard,
@@ -22,6 +25,9 @@ router.put("/properties/:id/reject", rejectProperty);
 router.get("/workers/pending", getPendingWorkers);
 router.put("/workers/:id/approve", approveWorker);
 router.put("/workers/:id/reject", rejectWorker);
+router.delete("/users/:id", removeUserProfile);
+router.delete("/properties/:id", removeProperty);
+router.delete("/workers/:id", removeWorker);
 router.patch("/properties/:id/occupancy", updatePropertyOccupancy);
 router.get("/bookings", getAdminBookings);
 router.get("/dashboard", getAdminDashboard);

@@ -728,6 +728,23 @@
           cell.textContent = formatDateTime(rawValue);
         } else if (column.type === "boolean") {
           cell.textContent = rawValue ? "Yes" : "No";
+        } else if (column.type === "action") {
+          if (!rawValue || !rawValue.action || !rawValue.id) {
+            cell.textContent = rawValue?.label || "-";
+          } else {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = rawValue.className || "btn danger";
+            button.textContent = rawValue.label || "Remove";
+            button.dataset.action = rawValue.action;
+            button.dataset.id = rawValue.id;
+            button.dataset.entity = rawValue.entity || "";
+            if (rawValue.protected) {
+              button.disabled = true;
+              button.textContent = rawValue.label || "Protected";
+            }
+            cell.appendChild(button);
+          }
         } else {
           cell.textContent = rawValue ?? "-";
         }
@@ -869,7 +886,7 @@
     switch (kpiKey) {
       case "totalUsers":
         title = "Total Users Breakdown";
-        desc = "Includes all registered accounts grouped by role. Clicked KPI shows user-level detail.";
+        desc = "Includes all registered accounts grouped by role. You can remove non-admin profiles.";
         items = buildCountItems(breakdowns.roleCounts, "users");
         tableColumns = [
           { label: "Name", key: "name" },
@@ -880,6 +897,20 @@
           { label: "Verified", key: "isVerified", type: "boolean" },
           { label: "Last Login", key: "lastLoginAt", type: "date" },
           { label: "Account Created", key: "createdAt", type: "date" },
+          {
+            label: "Action",
+            type: "action",
+            render: (row) =>
+              row.role === "admin"
+                ? { label: "Protected", protected: true }
+                : {
+                    action: "remove-user-profile",
+                    id: row.id,
+                    label: "Remove",
+                    className: "btn danger",
+                    entity: row.name || "user",
+                  },
+          },
         ];
         tableRows = detailRecords.users || [];
         emptyText = "No user records found.";
@@ -887,7 +918,7 @@
 
       case "totalProperties":
         title = "Total Properties Breakdown";
-        desc = "Includes every listing regardless of status.";
+        desc = "Includes every listing regardless of status. Remove option is available per property.";
         items = [
           ...buildCountItems(breakdowns.propertyStatusCounts, "listings"),
           ...buildCountItems(breakdowns.propertyTypeCounts, "type"),
@@ -903,6 +934,17 @@
           { label: "Owner", key: "ownerName" },
           { label: "Owner Contact", key: "ownerEmail" },
           { label: "Created", key: "createdAt", type: "date" },
+          {
+            label: "Action",
+            type: "action",
+            render: (row) => ({
+              action: "remove-property",
+              id: row.id,
+              label: "Remove",
+              className: "btn danger",
+              entity: row.title || "property",
+            }),
+          },
         ];
         tableRows = detailRecords.properties || [];
         emptyText = "No property records found.";
@@ -969,7 +1011,7 @@
 
       case "totalWorkers":
         title = "Workers Breakdown";
-        desc = "Workers split by verification stage and service type.";
+        desc = "Workers split by verification stage and service type. Remove option is available per helper profile.";
         items = [
           ...buildCountItems(breakdowns.workerVerificationCounts, "workers"),
           ...buildCountItems(breakdowns.workerServiceCounts, "services"),
@@ -985,6 +1027,17 @@
           { label: "Total Jobs", key: "totalJobs" },
           { label: "Last Login", key: "lastLoginAt", type: "date" },
           { label: "Registered", key: "createdAt", type: "date" },
+          {
+            label: "Action",
+            type: "action",
+            render: (row) => ({
+              action: "remove-worker",
+              id: row.id,
+              label: "Remove",
+              className: "btn danger",
+              entity: row.name || "worker",
+            }),
+          },
         ];
         tableRows = detailRecords.workers || [];
         emptyText = "No worker records found.";
@@ -992,7 +1045,7 @@
 
       case "totalOwners":
         title = "All Owners Breakdown";
-        desc = "All owner accounts across flat_owner, pg_owner, and hostel_owner roles.";
+        desc = "All owner accounts across flat_owner, pg_owner, and hostel_owner roles. Remove option deletes owner profile and linked data.";
         items = [
           {
             label: "Owner Accounts",
@@ -1024,6 +1077,17 @@
           { label: "Hotel Listings", key: "hotelListings" },
           { label: "Last Login", key: "lastLoginAt", type: "date" },
           { label: "Account Created", key: "createdAt", type: "date" },
+          {
+            label: "Action",
+            type: "action",
+            render: (row) => ({
+              action: "remove-user-profile",
+              id: row.id,
+              label: "Remove",
+              className: "btn danger",
+              entity: row.name || "owner",
+            }),
+          },
         ];
         tableRows = detailRecords.owners || [];
         emptyText = "No owner accounts found.";
@@ -1192,6 +1256,59 @@
     }
   };
 
+  const handleKpiDeleteAction = async (event) => {
+    const button = event.target.closest("button[data-action][data-id]");
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const entityId = button.dataset.id;
+    const entityName = button.dataset.entity || "record";
+
+    if (!["remove-user-profile", "remove-property", "remove-worker"].includes(action)) {
+      return;
+    }
+
+    const endpointMap = {
+      "remove-user-profile": `${API_BASE_URL}/admin/users/${entityId}`,
+      "remove-property": `${API_BASE_URL}/admin/properties/${entityId}`,
+      "remove-worker": `${API_BASE_URL}/admin/workers/${entityId}`,
+    };
+
+    const confirmMessageMap = {
+      "remove-user-profile": `Profile "${entityName}" remove karna hai? Linked data bhi delete ho sakta hai.`,
+      "remove-property": `Property "${entityName}" permanently remove karna hai?`,
+      "remove-worker": `Worker "${entityName}" remove karna hai?`,
+    };
+
+    const confirmation = window.confirm(confirmMessageMap[action] || "Are you sure?");
+    if (!confirmation) return;
+
+    const originalText = button.textContent;
+    try {
+      button.disabled = true;
+      button.textContent = "Removing...";
+
+      const response = await fetch(endpointMap[action], {
+        method: "DELETE",
+        headers: authHeaders(),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Delete action failed.");
+      }
+
+      showMessage(data.message || "Record removed.", "success");
+      await loadDashboard();
+    } catch (error) {
+      showMessage(error.message || "Delete action failed.");
+      if (button.isConnected) {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+  };
+
   const handlePropertyAction = async (event) => {
     const button = event.target.closest("button[data-action]");
     const action = button?.dataset.action;
@@ -1337,6 +1454,7 @@
   });
   adminAllComplaintsBody?.addEventListener("click", handleComplaintAction);
   adminReviewsBody?.addEventListener("click", handleReviewAction);
+  kpiDetailTableBody?.addEventListener("click", handleKpiDeleteAction);
   adminComplaintRefreshBtn?.addEventListener("click", loadAllComplaints);
   adminComplaintStatusFilter?.addEventListener("change", loadAllComplaints);
   bindKpiCardEvents();
