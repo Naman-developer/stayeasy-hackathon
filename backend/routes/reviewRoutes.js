@@ -6,6 +6,7 @@ const {
   getAdminReviewInbox,
   updateReviewVisibility,
   getPublicReviews,
+  getReviewSentimentInsights,
 } = require("../controllers/reviewController");
 const { verifyToken, authorizeRoles } = require("../middleware/authMiddleware");
 
@@ -32,6 +33,12 @@ router.get(
   getOwnerReviewInbox
 );
 router.get("/admin", verifyToken, authorizeRoles("admin"), getAdminReviewInbox);
+router.get(
+  "/insights",
+  verifyToken,
+  authorizeRoles("admin", "flat_owner", "pg_owner", "hostel_owner"),
+  getReviewSentimentInsights
+);
 router.patch(
   "/:id/visibility",
   verifyToken,

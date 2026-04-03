@@ -1,4 +1,9 @@
 const Property = require("../models/Property");
+const {
+  parseAmenities,
+  predictRentWithML,
+  median,
+} = require("../utils/pricePredictionModel");
 
 const ALLOWED_PROPERTY_TYPES = ["hostel", "pg", "flat", "room", "hotel"];
 const ALLOWED_PRICE_TYPES = ["monthly", "daily", "hourly"];
@@ -17,21 +22,6 @@ const normalizeArrayInput = (value) => {
   }
 
   return [];
-};
-
-const toLower = (value = "") => String(value).trim().toLowerCase();
-
-const parseAmenities = (value) =>
-  normalizeArrayInput(value).map((item) => toLower(item));
-
-const median = (numbers = []) => {
-  if (!numbers.length) return 0;
-  const sorted = [...numbers].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 0) {
-    return (sorted[mid - 1] + sorted[mid]) / 2;
-  }
-  return sorted[mid];
 };
 
 const getPublicProperties = async (req, res) => {
@@ -100,21 +90,47 @@ const getPriceSuggestion = async (req, res) => {
       });
     }
 
-    const query = {
+    const primaryQuery = {
       status: "approved",
       city: { $regex: String(city).trim(), $options: "i" },
       propertyType,
     };
-
     if (locality) {
-      query.address = { $regex: String(locality).trim(), $options: "i" };
+      primaryQuery.address = { $regex: String(locality).trim(), $options: "i" };
     }
 
-    const comparables = await Property.find(query)
+    let comparables = await Property.find(primaryQuery)
       .sort({ createdAt: -1 })
-      .limit(100)
-      .select("price amenities occupancy city address propertyType")
+      .limit(120)
+      .select("price amenities occupancy city address propertyType rating isVerified")
       .lean();
+
+    if (comparables.length < 12) {
+      const cityLevel = await Property.find({
+        status: "approved",
+        city: { $regex: String(city).trim(), $options: "i" },
+        propertyType,
+      })
+        .sort({ createdAt: -1 })
+        .limit(200)
+        .select("price amenities occupancy city address propertyType rating isVerified")
+        .lean();
+
+      comparables = cityLevel;
+    }
+
+    if (comparables.length < 8) {
+      const typeLevel = await Property.find({
+        status: "approved",
+        propertyType,
+      })
+        .sort({ createdAt: -1 })
+        .limit(240)
+        .select("price amenities occupancy city address propertyType rating isVerified")
+        .lean();
+
+      comparables = typeLevel;
+    }
 
     const parsedOccupancy = Number(occupancy || 1);
     const occupancyValue = Number.isFinite(parsedOccupancy) && parsedOccupancy > 0
@@ -122,17 +138,6 @@ const getPriceSuggestion = async (req, res) => {
       : 1;
 
     const amenitiesList = parseAmenities(amenities);
-    const amenityPremiumConfig = {
-      ac: 0.06,
-      wifi: 0.04,
-      parking: 0.03,
-      security: 0.03,
-      mess: 0.05,
-      food: 0.04,
-      laundry: 0.02,
-      power_backup: 0.03,
-      attached_bathroom: 0.03,
-    };
 
     let marketAverage = 0;
     let marketMedian = 0;
@@ -154,26 +159,34 @@ const getPriceSuggestion = async (req, res) => {
 
     const basePrice = marketMedian || marketAverage || fallbackBaseByType[propertyType] || 9000;
 
-    const amenityBoost = amenitiesList.reduce(
-      (sum, amenity) => sum + (amenityPremiumConfig[amenity] || 0),
-      0
-    );
-    const cappedAmenityBoost = Math.min(amenityBoost, 0.25);
+    const mlPrediction = predictRentWithML({
+      comparables,
+      propertyInput: {
+        propertyType,
+        occupancy: occupancyValue,
+        amenities: amenitiesList,
+        isVerified: false,
+        rating: 0,
+      },
+    });
 
-    const occupancyBoost = Math.min((occupancyValue - 1) * 0.03, 0.18);
-    const finalSuggested = Math.round(basePrice * (1 + cappedAmenityBoost + occupancyBoost) / 50) * 50;
+    const blendedSuggested = Math.round(
+      (mlPrediction.predictedRent * 0.82 + basePrice * 0.18) / 50
+    ) * 50;
 
-    const suggestedMin = Math.max(1000, Math.round(finalSuggested * 0.92 / 50) * 50);
-    const suggestedMax = Math.round(finalSuggested * 1.08 / 50) * 50;
+    const spread = Math.max(0.05, 0.14 - mlPrediction.confidence * 0.06);
+    const suggestedMin = Math.max(1000, Math.round((blendedSuggested * (1 - spread)) / 50) * 50);
+    const suggestedMax = Math.round((blendedSuggested * (1 + spread)) / 50) * 50;
 
     const factors = [];
-    if (comparables.length) factors.push(`Based on ${comparables.length} nearby approved listings`);
-    if (amenitiesList.length) factors.push(`Amenity premium for ${amenitiesList.slice(0, 4).join(", ")}`);
+    if (comparables.length) factors.push(`Based on ${comparables.length} approved comparable listings`);
+    if (amenitiesList.length) factors.push(`Amenity-aware ML features include ${amenitiesList.slice(0, 4).join(", ")}`);
     if (occupancyValue > 1) factors.push(`Occupancy adjustment for ${occupancyValue} occupants`);
+    factors.push(`Model confidence ${Math.round(mlPrediction.confidence * 100)}%`);
 
     return res.status(200).json({
       success: true,
-      title: "AI rent optimization hint",
+      title: "ML rent prediction + optimization hint",
       inputs: {
         city: String(city).trim(),
         locality: locality ? String(locality).trim() : "",
@@ -184,10 +197,16 @@ const getPriceSuggestion = async (req, res) => {
       comparableCount: comparables.length,
       marketAverage: Math.round(marketAverage),
       marketMedian: Math.round(marketMedian),
-      recommendedRent: finalSuggested,
+      recommendedRent: blendedSuggested,
       suggestedRange: {
         min: suggestedMin,
         max: suggestedMax,
+      },
+      mlModel: {
+        algorithm: mlPrediction.diagnostics.algorithm,
+        confidence: mlPrediction.confidence,
+        trainingSize: mlPrediction.diagnostics.trainingSize,
+        rmse: mlPrediction.diagnostics.rmse,
       },
       factors: factors.length ? factors : ["Using category-level baseline due to limited market data"],
     });

@@ -1,6 +1,12 @@
 const Review = require("../models/Review");
 const User = require("../models/User");
 const { createBulkNotifications, createNotification } = require("../utils/notify");
+const {
+  analyzeReviewSentiment,
+  buildSentimentSummary,
+  extractTopTerms,
+  MODEL_VERSION,
+} = require("../utils/reviewSentimentModel");
 
 const REVIEWER_ROLES = ["student", "tenant", "parent"];
 const OWNER_ADMIN_ROLES = ["flat_owner", "pg_owner", "hostel_owner", "admin"];
@@ -22,9 +28,45 @@ const toReviewResponse = (review) => ({
   title: review.title || "",
   message: review.message,
   visibility: review.visibility,
+  sentiment: {
+    label: review.sentimentLabel || "neutral",
+    score: Number(review.sentimentScore || 0),
+    confidence: Number(review.sentimentConfidence || 0),
+    version: review.sentimentVersion || MODEL_VERSION,
+  },
   createdAt: review.createdAt,
   updatedAt: review.updatedAt,
 });
+
+const enrichReviewWithSentiment = async (review) => {
+  if (review.sentimentLabel && Number.isFinite(Number(review.sentimentScore))) {
+    return review;
+  }
+
+  try {
+    const sentiment = await analyzeReviewSentiment(Review, {
+      title: review.title,
+      message: review.message,
+      rating: review.rating,
+    });
+
+    return {
+      ...review,
+      sentimentLabel: sentiment.label,
+      sentimentScore: sentiment.score,
+      sentimentConfidence: sentiment.confidence,
+      sentimentVersion: sentiment.modelVersion || MODEL_VERSION,
+    };
+  } catch (error) {
+    return {
+      ...review,
+      sentimentLabel: "neutral",
+      sentimentScore: 0,
+      sentimentConfidence: 0,
+      sentimentVersion: MODEL_VERSION,
+    };
+  }
+};
 
 const createReview = async (req, res) => {
   try {
@@ -61,6 +103,12 @@ const createReview = async (req, res) => {
       });
     }
 
+    const sentiment = await analyzeReviewSentiment(Review, {
+      title,
+      message,
+      rating,
+    });
+
     const review = await Review.create({
       reviewerId: reviewer._id,
       reviewerName: reviewer.name,
@@ -69,6 +117,10 @@ const createReview = async (req, res) => {
       title,
       message,
       visibility: "public",
+      sentimentLabel: sentiment.label,
+      sentimentScore: sentiment.score,
+      sentimentConfidence: sentiment.confidence,
+      sentimentVersion: sentiment.modelVersion || MODEL_VERSION,
     });
 
     const recipients = await User.find(
@@ -107,14 +159,17 @@ const createReview = async (req, res) => {
 
 const getMyReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({ reviewerId: req.user.userId })
+    const rawReviews = await Review.find({ reviewerId: req.user.userId })
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
 
+    const reviews = await Promise.all(rawReviews.map(enrichReviewWithSentiment));
+
     return res.status(200).json({
       success: true,
       count: reviews.length,
+      sentimentSummary: buildSentimentSummary(reviews),
       reviews: reviews.map(toReviewResponse),
     });
   } catch (error) {
@@ -128,14 +183,17 @@ const getMyReviews = async (req, res) => {
 
 const getOwnerReviewInbox = async (req, res) => {
   try {
-    const reviews = await Review.find({})
+    const rawReviews = await Review.find({})
       .sort({ createdAt: -1 })
       .limit(200)
       .lean();
 
+    const reviews = await Promise.all(rawReviews.map(enrichReviewWithSentiment));
+
     return res.status(200).json({
       success: true,
       count: reviews.length,
+      sentimentSummary: buildSentimentSummary(reviews),
       reviews: reviews.map(toReviewResponse),
     });
   } catch (error) {
@@ -149,10 +207,12 @@ const getOwnerReviewInbox = async (req, res) => {
 
 const getAdminReviewInbox = async (req, res) => {
   try {
-    const reviews = await Review.find({})
+    const rawReviews = await Review.find({})
       .sort({ createdAt: -1 })
       .limit(500)
       .lean();
+
+    const reviews = await Promise.all(rawReviews.map(enrichReviewWithSentiment));
 
     const visibilityCounts = reviews.reduce(
       (acc, item) => {
@@ -166,6 +226,7 @@ const getAdminReviewInbox = async (req, res) => {
       success: true,
       count: reviews.length,
       visibilityCounts,
+      sentimentSummary: buildSentimentSummary(reviews),
       reviews: reviews.map(toReviewResponse),
     });
   } catch (error) {
@@ -228,14 +289,17 @@ const getPublicReviews = async (req, res) => {
     const limitValue = Number(req.query.limit || 6);
     const limit = Math.max(1, Math.min(20, Number.isFinite(limitValue) ? limitValue : 6));
 
-    const reviews = await Review.find({ visibility: "public" })
+    const rawReviews = await Review.find({ visibility: "public" })
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 
+    const reviews = await Promise.all(rawReviews.map(enrichReviewWithSentiment));
+
     return res.status(200).json({
       success: true,
       count: reviews.length,
+      sentimentSummary: buildSentimentSummary(reviews),
       reviews: reviews.map((review) => ({
         id: review._id,
         reviewerName: review.reviewerName,
@@ -243,6 +307,11 @@ const getPublicReviews = async (req, res) => {
         rating: review.rating,
         title: review.title || "",
         message: review.message,
+        sentiment: {
+          label: review.sentimentLabel || "neutral",
+          score: Number(review.sentimentScore || 0),
+          confidence: Number(review.sentimentConfidence || 0),
+        },
         createdAt: review.createdAt,
       })),
     });
@@ -255,6 +324,38 @@ const getPublicReviews = async (req, res) => {
   }
 };
 
+const getReviewSentimentInsights = async (req, res) => {
+  try {
+    const limitValue = Number(req.query.limit || 300);
+    const limit = Math.max(20, Math.min(1000, Number.isFinite(limitValue) ? limitValue : 300));
+
+    const rawReviews = await Review.find({})
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+
+    const reviews = await Promise.all(rawReviews.map(enrichReviewWithSentiment));
+    const sentimentSummary = buildSentimentSummary(reviews);
+    const topNegativeTerms = extractTopTerms(reviews, { label: "negative", limit: 8 });
+    const topPositiveTerms = extractTopTerms(reviews, { label: "positive", limit: 8 });
+
+    return res.status(200).json({
+      success: true,
+      analyzedCount: reviews.length,
+      sentimentSummary,
+      topNegativeTerms,
+      topPositiveTerms,
+      modelVersion: MODEL_VERSION,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate sentiment insights.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createReview,
   getMyReviews,
@@ -262,4 +363,5 @@ module.exports = {
   getAdminReviewInbox,
   updateReviewVisibility,
   getPublicReviews,
+  getReviewSentimentInsights,
 };

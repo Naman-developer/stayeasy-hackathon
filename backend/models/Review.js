@@ -40,11 +40,33 @@ const reviewSchema = new mongoose.Schema(
       enum: ["public", "hidden"],
       default: "public",
     },
+    sentimentLabel: {
+      type: String,
+      enum: ["positive", "neutral", "negative"],
+      default: "neutral",
+    },
+    sentimentScore: {
+      type: Number,
+      default: 0,
+      min: -1,
+      max: 1,
+    },
+    sentimentConfidence: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 1,
+    },
+    sentimentVersion: {
+      type: String,
+      default: "sentiment-v1",
+    },
   },
   { timestamps: true }
 );
 
 reviewSchema.index({ visibility: 1, createdAt: -1 });
 reviewSchema.index({ reviewerId: 1, createdAt: -1 });
+reviewSchema.index({ sentimentLabel: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Review", reviewSchema);
