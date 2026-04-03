@@ -31,6 +31,14 @@
       maximumFractionDigits: 0,
     });
 
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
   const getStatusPill = (status) =>
     `<span class="status-pill ${status}">${status.replace("_", " ")}</span>`;
 
@@ -186,6 +194,8 @@
   const rentSuggestionResult = document.getElementById("rentSuggestionResult");
   const tenantTrustTableBody = document.getElementById("tenantTrustTableBody");
   const ownerReviewsBody = document.getElementById("ownerReviewsBody");
+  const ownerReviewInsightGrid = document.getElementById("ownerReviewInsightGrid");
+  const ownerReviewTerms = document.getElementById("ownerReviewTerms");
 
   let ownerListingsCache = [];
   let imagePayloadCache = [];
@@ -342,24 +352,83 @@
     if (!reviews.length) {
       ownerReviewsBody.innerHTML = `
         <tr>
-          <td colspan="6" class="small-text">No reviews submitted yet.</td>
+          <td colspan="8" class="small-text">No reviews submitted yet.</td>
         </tr>
       `;
       return;
     }
 
     reviews.forEach((review) => {
+      const allowedSentiments = new Set(["positive", "neutral", "negative"]);
+      const rawSentimentLabel = String(review.sentiment?.label || "neutral").toLowerCase();
+      const sentimentLabel = allowedSentiments.has(rawSentimentLabel) ? rawSentimentLabel : "neutral";
+      const sentimentScore = Number(review.sentiment?.score || 0);
+      const sentimentConfidence = Math.round(Number(review.sentiment?.confidence || 0) * 100);
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${review.reviewerName || "User"}</td>
-        <td>${review.reviewerRole || "-"}</td>
-        <td><span class="feedback-pill">${review.rating || 0}/5</span></td>
-        <td>${review.title || "-"}</td>
-        <td>${review.message || "-"}</td>
+        <td>${escapeHtml(review.reviewerName || "User")}</td>
+        <td>${escapeHtml(review.reviewerRole || "-")}</td>
+        <td><span class="feedback-pill">${escapeHtml(review.rating || 0)}/5</span></td>
+        <td><span class="tag-chip sentiment-${sentimentLabel}">${escapeHtml(sentimentLabel)} (${sentimentScore.toFixed(2)})</span></td>
+        <td>${sentimentConfidence}%</td>
+        <td>${escapeHtml(review.title || "-")}</td>
+        <td>${escapeHtml(review.message || "-")}</td>
         <td>${new Date(review.createdAt).toLocaleDateString("en-IN")}</td>
       `;
       ownerReviewsBody.appendChild(row);
     });
+  };
+
+  const renderOwnerReviewInsights = (summary = {}, insights = null) => {
+    if (!ownerReviewInsightGrid) return;
+
+    const total = Number(summary.total || 0);
+    const positive = Number(summary.positive || 0);
+    const neutral = Number(summary.neutral || 0);
+    const negative = Number(summary.negative || 0);
+    const avgScore = Number(summary.averageSentimentScore || 0);
+
+    ownerReviewInsightGrid.innerHTML = `
+      <article class="kpi-breakdown-item">
+        <p>Total Reviews</p>
+        <h4>${total}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Positive</p>
+        <h4>${positive}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Neutral</p>
+        <h4>${neutral}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Negative</p>
+        <h4>${negative}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Avg Sentiment</p>
+        <h4>${avgScore.toFixed(2)}</h4>
+      </article>
+    `;
+
+    if (!ownerReviewTerms) return;
+    if (!insights) {
+      ownerReviewTerms.textContent = "";
+      return;
+    }
+
+    const negativeTerms = (insights.topNegativeTerms || [])
+      .slice(0, 5)
+      .map((item) => `${item.term} (${item.count})`)
+      .join(", ");
+    const positiveTerms = (insights.topPositiveTerms || [])
+      .slice(0, 5)
+      .map((item) => `${item.term} (${item.count})`)
+      .join(", ");
+
+    ownerReviewTerms.textContent = `Top negative terms: ${
+      negativeTerms || "NA"
+    } | Top positive terms: ${positiveTerms || "NA"} | Model: ${insights.modelVersion || "sentiment-v1"}`;
   };
 
   const loadOwnerReviews = async () => {
@@ -367,27 +436,45 @@
 
     ownerReviewsBody.innerHTML = `
       <tr>
-        <td colspan="6" class="small-text">
+        <td colspan="8" class="small-text">
           <span class="loading-inline"><span class="loading-spinner"></span> Loading reviews...</span>
         </td>
       </tr>
     `;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/owner`, {
-        headers: authHeaders(),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to load reviews.");
+      const [ownerResponse, insightsResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/reviews/owner`, {
+          headers: authHeaders(),
+        }),
+        fetch(`${API_BASE_URL}/reviews/insights`, {
+          headers: authHeaders(),
+        }),
+      ]);
+
+      const ownerData = await ownerResponse.json();
+      if (!ownerResponse.ok) {
+        throw new Error(ownerData.message || "Unable to load reviews.");
       }
-      renderOwnerReviews(data.reviews || []);
+
+      let insightsData = null;
+      if (insightsResponse.ok) {
+        try {
+          insightsData = await insightsResponse.json();
+        } catch (error) {
+          insightsData = null;
+        }
+      }
+
+      renderOwnerReviews(ownerData.reviews || []);
+      renderOwnerReviewInsights(ownerData.sentimentSummary || {}, insightsData);
     } catch (error) {
       ownerReviewsBody.innerHTML = `
         <tr>
-          <td colspan="6" class="small-text">${error.message}</td>
+          <td colspan="8" class="small-text">${error.message}</td>
         </tr>
       `;
+      renderOwnerReviewInsights({}, null);
     }
   };
 
@@ -559,6 +646,9 @@
           data.marketMedian
         )}</p>
         <p class="small-text">Comparables used: ${data.comparableCount}</p>
+        <p class="small-text">Model: ${data.mlModel?.algorithm || "fallback"} | Confidence: ${
+        Math.round(Number(data.mlModel?.confidence || 0) * 100)
+      }% | RMSE: ${data.mlModel?.rmse ?? "NA"}</p>
         <p class="small-text">${(data.factors || []).join(" | ")}</p>
       `;
       showToastSafe("AI rent suggestion generated.", "success");

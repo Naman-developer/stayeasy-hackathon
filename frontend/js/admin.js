@@ -27,6 +27,8 @@
   const escalatedComplaintsBody = document.getElementById("escalatedComplaintsBody");
   const adminAllComplaintsBody = document.getElementById("adminAllComplaintsBody");
   const adminReviewsBody = document.getElementById("adminReviewsBody");
+  const adminReviewInsightGrid = document.getElementById("adminReviewInsightGrid");
+  const adminReviewTerms = document.getElementById("adminReviewTerms");
   const adminComplaintStatusFilter = document.getElementById("adminComplaintStatusFilter");
   const adminComplaintRefreshBtn = document.getElementById("adminComplaintRefreshBtn");
   const adminComplaintStats = document.getElementById("adminComplaintStats");
@@ -332,7 +334,7 @@
     if (!reviews.length) {
       adminReviewsBody.innerHTML = `
         <tr>
-          <td colspan="8" class="small-text">No user reviews found.</td>
+          <td colspan="10" class="small-text">No user reviews found.</td>
         </tr>
       `;
       return;
@@ -342,12 +344,19 @@
       const visibility = review.visibility || "public";
       const nextVisibility = visibility === "public" ? "hidden" : "public";
       const actionLabel = visibility === "public" ? "Hide" : "Show";
+      const sentimentLabel = review.sentiment?.label || "neutral";
+      const sentimentScore = Number(review.sentiment?.score || 0);
+      const confidence = Math.round(Number(review.sentiment?.confidence || 0) * 100);
 
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${escapeHtml(review.reviewerName || "User")}</td>
         <td>${escapeHtml(review.reviewerRole || "-")}</td>
         <td><span class="feedback-pill">${escapeHtml(review.rating || 0)}/5</span></td>
+        <td><span class="tag-chip sentiment-${escapeHtml(sentimentLabel)}">${escapeHtml(
+          sentimentLabel
+        )} (${sentimentScore.toFixed(2)})</span></td>
+        <td>${confidence}%</td>
         <td>${escapeHtml(review.title || "-")}</td>
         <td>${escapeHtml(review.message || "-")}</td>
         <td><span class="tag-chip">${escapeHtml(visibility)}</span></td>
@@ -367,25 +376,95 @@
     });
   };
 
+  const renderAdminReviewInsights = (summary = {}, insights = null) => {
+    if (!adminReviewInsightGrid) return;
+
+    const total = Number(summary.total || 0);
+    const positive = Number(summary.positive || 0);
+    const neutral = Number(summary.neutral || 0);
+    const negative = Number(summary.negative || 0);
+    const avgScore = Number(summary.averageSentimentScore || 0);
+
+    adminReviewInsightGrid.innerHTML = `
+      <article class="kpi-breakdown-item">
+        <p>Total Reviews</p>
+        <h4>${formatNumber(total)}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Positive</p>
+        <h4>${formatNumber(positive)}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Neutral</p>
+        <h4>${formatNumber(neutral)}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Negative</p>
+        <h4>${formatNumber(negative)}</h4>
+      </article>
+      <article class="kpi-breakdown-item">
+        <p>Avg Sentiment</p>
+        <h4>${avgScore.toFixed(2)}</h4>
+      </article>
+    `;
+
+    if (!adminReviewTerms) return;
+    if (!insights) {
+      adminReviewTerms.textContent = "";
+      return;
+    }
+
+    const negativeTerms = (insights.topNegativeTerms || [])
+      .slice(0, 5)
+      .map((item) => `${item.term} (${item.count})`)
+      .join(", ");
+    const positiveTerms = (insights.topPositiveTerms || [])
+      .slice(0, 5)
+      .map((item) => `${item.term} (${item.count})`)
+      .join(", ");
+
+    adminReviewTerms.textContent = `Top negative terms: ${
+      negativeTerms || "NA"
+    } | Top positive terms: ${positiveTerms || "NA"} | Model: ${insights.modelVersion || "sentiment-v1"}`;
+  };
+
   const loadAdminReviews = async () => {
     if (!adminReviewsBody) return;
 
-    renderLoadingTable(adminReviewsBody, 8);
+    renderLoadingTable(adminReviewsBody, 10);
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/admin`, {
-        headers: authHeaders(),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to load user reviews.");
+      const [adminResponse, insightsResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/reviews/admin`, {
+          headers: authHeaders(),
+        }),
+        fetch(`${API_BASE_URL}/reviews/insights`, {
+          headers: authHeaders(),
+        }),
+      ]);
+
+      const adminData = await adminResponse.json();
+      if (!adminResponse.ok) {
+        throw new Error(adminData.message || "Failed to load user reviews.");
       }
-      renderAdminReviews(data.reviews || []);
+
+      let insightsData = null;
+      if (insightsResponse.ok) {
+        try {
+          insightsData = await insightsResponse.json();
+        } catch (error) {
+          insightsData = null;
+        }
+      }
+
+      renderAdminReviews(adminData.reviews || []);
+      renderAdminReviewInsights(adminData.sentimentSummary || {}, insightsData);
     } catch (error) {
       adminReviewsBody.innerHTML = `
         <tr>
-          <td colspan="8" class="small-text">${error.message}</td>
+          <td colspan="10" class="small-text">${error.message}</td>
         </tr>
       `;
+      renderAdminReviewInsights({}, null);
     }
   };
 
